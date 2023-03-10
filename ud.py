@@ -300,7 +300,7 @@ class Udemy:
         logging.info(f'Crawling: {source}')
         tree = html.fromstring(bytes(re.text, encoding='utf-8'))
         link = tree.xpath("(//a[contains(@id,'couponval')])[1]/@href")
-        url = link[0].split('https://click.linksynergy.com/deeplink?id=AVS0Ru3Qe18&mid=47901&murl=')[1]
+        url = link[0].split('murl=')[1]
         logging.info(f'Checking: {url}')
         if self.unique(url):
             if self.verifyUdemy(url):
