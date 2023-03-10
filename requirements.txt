@@ -1,0 +1,8 @@
+lxml
+requests
+urllib3
+selenium
+psycopg2-binary
+python-amazon-paapi
+webdriver_manager
+cloudscraper

@@ -1,0 +1,8 @@
+bot/
+__pycache__/
+.vscode/
+vendor/
+tests/
+feed.*
+secrets.py
+source.txt

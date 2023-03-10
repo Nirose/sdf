@@ -1,0 +1,42 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: apps
+on:
+ workflow_dispatch:
+ schedule:
+   - cron: "0 */1 * * *"
+permissions: write-all
+env: # Or as an environment variable
+      DB_URL: ${{ secrets.DB_URL }}
+      A_U: ${{ secrets.A_U }}
+      A_P: ${{ secrets.A_P}}
+      DEPLOYED: ${{ secrets.DEPLOYED}}
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: execute py script # run main.py
+      run: python iapps.py
+
+    - name: commit files
+      run: |
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        git add -A
+        git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
+          
+    - name: push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
