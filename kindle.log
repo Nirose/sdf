@@ -1,15 +1,15 @@
-2023-03-12 09:32:19,728 - INFO - Bookzio: 45 found
-2023-03-12 09:32:19,899 - INFO - HUKD: 17 found
-2023-03-12 09:32:20,301 - INFO - Amazon: 30 found
-2023-03-12 09:32:28,208 - INFO - New found: 4
-2023-03-12 09:32:28,221 - INFO - ====== WebDriver manager ======
-2023-03-12 09:32:29,319 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
-2023-03-12 09:32:29,498 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
-2023-03-12 09:32:29,498 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
-2023-03-12 09:32:29,846 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
-2023-03-12 09:32:42,039 - INFO - https://www.amazon.com/dp/B07MZBHMXP
-2023-03-12 09:32:42,039 - INFO - 1 of 4: https://www.amazon.com/dp/B07MZBHMXP
-2023-03-12 09:32:43,779 - ERROR - Traceback (most recent call last):
+2023-03-12 12:49:44,924 - INFO - Bookzio: 45 found
+2023-03-12 12:49:45,258 - INFO - HUKD: 17 found
+2023-03-12 12:49:45,284 - INFO - Amazon: 30 found
+2023-03-12 12:49:52,865 - INFO - New found: 5
+2023-03-12 12:49:52,878 - INFO - ====== WebDriver manager ======
+2023-03-12 12:49:54,479 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
+2023-03-12 12:49:54,608 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
+2023-03-12 12:49:54,608 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
+2023-03-12 12:49:54,875 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
+2023-03-12 12:50:06,564 - INFO - https://www.amazon.com/dp/B071HVB9LW
+2023-03-12 12:50:06,564 - INFO - 1 of 5: https://www.amazon.com/dp/B071HVB9LW
+2023-03-12 12:50:11,129 - ERROR - Traceback (most recent call last):
   File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
     price = item.offers.listings[0].price.display_amount
             ^^^^
@@ -31,75 +31,35 @@ Traceback (most recent call last):
 selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
   (Session info: headless chrome=110.0.5481.177)
 Stacktrace:
-#0 0x55f45aa88d93 <unknown>
-#1 0x55f45a8572d7 <unknown>
-#2 0x55f45a893caa <unknown>
-#3 0x55f45a893db1 <unknown>
-#4 0x55f45a8d18f4 <unknown>
-#5 0x55f45a8b761d <unknown>
-#6 0x55f45a8cf619 <unknown>
-#7 0x55f45a8b7353 <unknown>
-#8 0x55f45a886e40 <unknown>
-#9 0x55f45a888038 <unknown>
-#10 0x55f45aadc8be <unknown>
-#11 0x55f45aae08f0 <unknown>
-#12 0x55f45aac0f90 <unknown>
-#13 0x55f45aae1b7d <unknown>
-#14 0x55f45aab2578 <unknown>
-#15 0x55f45ab06348 <unknown>
-#16 0x55f45ab064d6 <unknown>
-#17 0x55f45ab20341 <unknown>
-#18 0x7fb6a3280b43 <unknown>
+#0 0x562804777d93 <unknown>
+#1 0x5628045462d7 <unknown>
+#2 0x562804582caa <unknown>
+#3 0x562804582db1 <unknown>
+#4 0x5628045c08f4 <unknown>
+#5 0x5628045a661d <unknown>
+#6 0x5628045be619 <unknown>
+#7 0x5628045a6353 <unknown>
+#8 0x562804575e40 <unknown>
+#9 0x562804577038 <unknown>
+#10 0x5628047cb8be <unknown>
+#11 0x5628047cf8f0 <unknown>
+#12 0x5628047aff90 <unknown>
+#13 0x5628047d0b7d <unknown>
+#14 0x5628047a1578 <unknown>
+#15 0x5628047f5348 <unknown>
+#16 0x5628047f54d6 <unknown>
+#17 0x56280480f341 <unknown>
+#18 0x7fb9c3e28b43 <unknown>
 
 
-2023-03-12 09:32:43,780 - INFO - https://www.amazon.com/dp/B0BXY6BYPM
-2023-03-12 09:32:43,780 - INFO - 2 of 4: https://www.amazon.com/dp/B0BXY6BYPM
-2023-03-12 09:32:48,191 - INFO - Couldnt find original price for https://www.amazon.com/dp/B0BXY6BYPM
-2023-03-12 09:32:48,191 - INFO - https://www.amazon.com/dp/B071HVB9LW
-2023-03-12 09:32:48,191 - INFO - 3 of 4: https://www.amazon.com/dp/B071HVB9LW
-2023-03-12 09:32:52,380 - ERROR - Traceback (most recent call last):
-  File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
-    price = item.offers.listings[0].price.display_amount
-            ^^^^
-UnboundLocalError: cannot access local variable 'item' where it is not associated with a value
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/sdf/sdf/kindle.py", line 346, in posttoForum
-    else driver.find_element(
-         ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 830, in find_element
-    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 440, in execute
-    self.error_handler.check_response(response)
-  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py", line 245, in check_response
-    raise exception_class(message, screen, stacktrace)
-selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
-  (Session info: headless chrome=110.0.5481.177)
-Stacktrace:
-#0 0x55f45aa88d93 <unknown>
-#1 0x55f45a8572d7 <unknown>
-#2 0x55f45a893caa <unknown>
-#3 0x55f45a893db1 <unknown>
-#4 0x55f45a8d18f4 <unknown>
-#5 0x55f45a8b761d <unknown>
-#6 0x55f45a8cf619 <unknown>
-#7 0x55f45a8b7353 <unknown>
-#8 0x55f45a886e40 <unknown>
-#9 0x55f45a888038 <unknown>
-#10 0x55f45aadc8be <unknown>
-#11 0x55f45aae08f0 <unknown>
-#12 0x55f45aac0f90 <unknown>
-#13 0x55f45aae1b7d <unknown>
-#14 0x55f45aab2578 <unknown>
-#15 0x55f45ab06348 <unknown>
-#16 0x55f45ab064d6 <unknown>
-#17 0x55f45ab20341 <unknown>
-#18 0x7fb6a3280b43 <unknown>
-
-
-2023-03-12 09:32:52,380 - INFO - https://www.amazon.com/dp/B0BXTHF7QM
-2023-03-12 09:32:52,380 - INFO - 4 of 4: https://www.amazon.com/dp/B0BXTHF7QM
-2023-03-12 09:32:56,740 - INFO - Couldnt find original price for https://www.amazon.com/dp/B0BXTHF7QM
+2023-03-12 12:50:11,130 - INFO - https://www.amazon.com/dp/B0BXY6BYPM
+2023-03-12 12:50:11,130 - INFO - 2 of 5: https://www.amazon.com/dp/B0BXY6BYPM
+2023-03-12 12:50:15,249 - INFO - Couldnt find original price for https://www.amazon.com/dp/B0BXY6BYPM
+2023-03-12 12:50:15,249 - INFO - https://www.amazon.com/dp/B0BS12Z42Z
+2023-03-12 12:50:15,249 - INFO - 3 of 5: https://www.amazon.com/dp/B0BS12Z42Z
+2023-03-12 12:51:24,892 - INFO - https://www.amazon.com/dp/B07MZBHMXP
+2023-03-12 12:51:24,893 - INFO - 4 of 5: https://www.amazon.com/dp/B07MZBHMXP
+2023-03-12 12:51:28,681 - INFO - Couldnt find original price for https://www.amazon.com/dp/B07MZBHMXP
+2023-03-12 12:51:28,681 - INFO - https://www.amazon.com/dp/B0BXTHF7QM
+2023-03-12 12:51:28,681 - INFO - 5 of 5: https://www.amazon.com/dp/B0BXTHF7QM
+2023-03-12 12:51:32,706 - INFO - Couldnt find original price for https://www.amazon.com/dp/B0BXTHF7QM
