@@ -1,15 +1,15 @@
-2023-03-13 12:54:28,343 - INFO - HUKD: 16 found
-2023-03-13 12:54:28,789 - INFO - Amazon: 30 found
-2023-03-13 12:54:31,353 - INFO - Bookzio: 45 found
-2023-03-13 12:54:40,407 - INFO - New found: 4
-2023-03-13 12:54:40,423 - INFO - ====== WebDriver manager ======
-2023-03-13 12:54:42,991 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
-2023-03-13 12:54:43,128 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
-2023-03-13 12:54:43,128 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
-2023-03-13 12:54:43,453 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
-2023-03-13 12:55:00,034 - INFO - https://www.amazon.com/dp/B09KYJKFM1
-2023-03-13 12:55:00,034 - INFO - 1 of 4: https://www.amazon.com/dp/B09KYJKFM1
-2023-03-13 12:55:01,399 - ERROR - Traceback (most recent call last):
+2023-03-13 15:32:58,613 - INFO - HUKD: 17 found
+2023-03-13 15:32:58,669 - INFO - Bookzio: 45 found
+2023-03-13 15:32:59,117 - INFO - Amazon: 30 found
+2023-03-13 15:33:08,220 - INFO - New found: 8
+2023-03-13 15:33:08,235 - INFO - ====== WebDriver manager ======
+2023-03-13 15:33:08,393 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
+2023-03-13 15:33:08,536 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
+2023-03-13 15:33:08,536 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
+2023-03-13 15:33:08,838 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
+2023-03-13 15:33:16,135 - INFO - https://www.amazon.com/dp/B00T3IUS2A
+2023-03-13 15:33:16,136 - INFO - 1 of 8: https://www.amazon.com/dp/B00T3IUS2A
+2023-03-13 15:33:17,531 - ERROR - Traceback (most recent call last):
   File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
     price = item.offers.listings[0].price.display_amount
             ^^^^
@@ -31,32 +31,34 @@ Traceback (most recent call last):
 selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
   (Session info: headless chrome=110.0.5481.177)
 Stacktrace:
-#0 0x5579ea9c7d93 <unknown>
-#1 0x5579ea7962d7 <unknown>
-#2 0x5579ea7d2caa <unknown>
-#3 0x5579ea7d2db1 <unknown>
-#4 0x5579ea8108f4 <unknown>
-#5 0x5579ea7f661d <unknown>
-#6 0x5579ea80e619 <unknown>
-#7 0x5579ea7f6353 <unknown>
-#8 0x5579ea7c5e40 <unknown>
-#9 0x5579ea7c7038 <unknown>
-#10 0x5579eaa1b8be <unknown>
-#11 0x5579eaa1f8f0 <unknown>
-#12 0x5579ea9fff90 <unknown>
-#13 0x5579eaa20b7d <unknown>
-#14 0x5579ea9f1578 <unknown>
-#15 0x5579eaa45348 <unknown>
-#16 0x5579eaa454d6 <unknown>
-#17 0x5579eaa5f341 <unknown>
-#18 0x7f3cd282cb43 <unknown>
+#0 0x55f07362dd93 <unknown>
+#1 0x55f0733fc2d7 <unknown>
+#2 0x55f073438caa <unknown>
+#3 0x55f073438db1 <unknown>
+#4 0x55f0734768f4 <unknown>
+#5 0x55f07345c61d <unknown>
+#6 0x55f073474619 <unknown>
+#7 0x55f07345c353 <unknown>
+#8 0x55f07342be40 <unknown>
+#9 0x55f07342d038 <unknown>
+#10 0x55f0736818be <unknown>
+#11 0x55f0736858f0 <unknown>
+#12 0x55f073665f90 <unknown>
+#13 0x55f073686b7d <unknown>
+#14 0x55f073657578 <unknown>
+#15 0x55f0736ab348 <unknown>
+#16 0x55f0736ab4d6 <unknown>
+#17 0x55f0736c5341 <unknown>
+#18 0x7f4c8e89ab43 <unknown>
 
 
-2023-03-13 12:55:01,399 - INFO - https://www.amazon.com/dp/B00TUMS0CO
-2023-03-13 12:55:01,399 - INFO - 2 of 4: https://www.amazon.com/dp/B00TUMS0CO
-2023-03-13 12:56:11,550 - INFO - https://www.amazon.com/dp/B00CHKQXF2
-2023-03-13 12:56:11,551 - INFO - 3 of 4: https://www.amazon.com/dp/B00CHKQXF2
-2023-03-13 12:56:14,965 - ERROR - Traceback (most recent call last):
+2023-03-13 15:33:17,531 - INFO - https://www.amazon.com/dp/B0BG34VPQM
+2023-03-13 15:33:17,531 - INFO - 2 of 8: https://www.amazon.com/dp/B0BG34VPQM
+2023-03-13 15:34:27,985 - INFO - https://www.amazon.com/dp/B077BWMCCS
+2023-03-13 15:34:27,985 - INFO - 3 of 8: https://www.amazon.com/dp/B077BWMCCS
+2023-03-13 15:35:37,431 - INFO - https://www.amazon.com/dp/B00CHKQXF2
+2023-03-13 15:35:37,431 - INFO - 4 of 8: https://www.amazon.com/dp/B00CHKQXF2
+2023-03-13 15:35:41,185 - ERROR - Traceback (most recent call last):
   File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
     price = item.offers.listings[0].price.display_amount
             ^^^^
@@ -78,26 +80,38 @@ Traceback (most recent call last):
 selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
   (Session info: headless chrome=110.0.5481.177)
 Stacktrace:
-#0 0x5579ea9c7d93 <unknown>
-#1 0x5579ea7962d7 <unknown>
-#2 0x5579ea7d2caa <unknown>
-#3 0x5579ea7d2db1 <unknown>
-#4 0x5579ea8108f4 <unknown>
-#5 0x5579ea7f661d <unknown>
-#6 0x5579ea80e619 <unknown>
-#7 0x5579ea7f6353 <unknown>
-#8 0x5579ea7c5e40 <unknown>
-#9 0x5579ea7c7038 <unknown>
-#10 0x5579eaa1b8be <unknown>
-#11 0x5579eaa1f8f0 <unknown>
-#12 0x5579ea9fff90 <unknown>
-#13 0x5579eaa20b7d <unknown>
-#14 0x5579ea9f1578 <unknown>
-#15 0x5579eaa45348 <unknown>
-#16 0x5579eaa454d6 <unknown>
-#17 0x5579eaa5f341 <unknown>
-#18 0x7f3cd282cb43 <unknown>
+#0 0x55f07362dd93 <unknown>
+#1 0x55f0733fc2d7 <unknown>
+#2 0x55f073438caa <unknown>
+#3 0x55f073438db1 <unknown>
+#4 0x55f0734768f4 <unknown>
+#5 0x55f07345c61d <unknown>
+#6 0x55f073474619 <unknown>
+#7 0x55f07345c353 <unknown>
+#8 0x55f07342be40 <unknown>
+#9 0x55f07342d038 <unknown>
+#10 0x55f0736818be <unknown>
+#11 0x55f0736858f0 <unknown>
+#12 0x55f073665f90 <unknown>
+#13 0x55f073686b7d <unknown>
+#14 0x55f073657578 <unknown>
+#15 0x55f0736ab348 <unknown>
+#16 0x55f0736ab4d6 <unknown>
+#17 0x55f0736c5341 <unknown>
+#18 0x7f4c8e89ab43 <unknown>
 
 
-2023-03-13 12:56:14,965 - INFO - https://www.amazon.com/dp/B01L7YQOQQ
-2023-03-13 12:56:14,965 - INFO - 4 of 4: https://www.amazon.com/dp/B01L7YQOQQ
+2023-03-13 15:35:41,185 - INFO - https://www.amazon.com/dp/B0785MQVFP
+2023-03-13 15:35:41,185 - INFO - 5 of 8: https://www.amazon.com/dp/B0785MQVFP
+2023-03-13 15:36:50,255 - INFO - https://www.amazon.com/dp/B07Y6V1S73
+2023-03-13 15:36:50,255 - INFO - 6 of 8: https://www.amazon.com/dp/B07Y6V1S73
+2023-03-13 15:38:00,215 - INFO - https://www.amazon.com/dp/B009WJWD2S
+2023-03-13 15:38:00,215 - INFO - 7 of 8: https://www.amazon.com/dp/B009WJWD2S
+2023-03-13 15:39:10,135 - INFO - https://www.amazon.com/dp/B09KYJKFM1
+2023-03-13 15:39:10,135 - INFO - 8 of 8: https://www.amazon.com/dp/B09KYJKFM1
+2023-03-13 15:39:12,034 - INFO - https://www.amazon.com/dp/B086HRNC38
+2023-03-13 15:39:12,034 - INFO - 9 of 11: https://www.amazon.com/dp/B086HRNC38
+2023-03-13 15:40:22,930 - INFO - https://www.amazon.com/dp/B08J82B1YG
+2023-03-13 15:40:22,930 - INFO - 10 of 11: https://www.amazon.com/dp/B08J82B1YG
+2023-03-13 15:41:33,369 - INFO - https://www.amazon.com/dp/B08BK6YKRG
+2023-03-13 15:41:33,369 - INFO - 11 of 11: https://www.amazon.com/dp/B08BK6YKRG
