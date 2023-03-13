@@ -1,11 +1,11 @@
-2023-03-13 02:11:06,800 - INFO - Crawling App Addict
-2023-03-13 02:11:06,803 - INFO - Crawling iOSSnoops
-2023-03-13 02:11:06,805 - INFO - Crawling appadvice
-2023-03-13 02:11:12,732 - INFO - New: 1
-2023-03-13 02:11:12,745 - INFO - ====== WebDriver manager ======
-2023-03-13 02:11:14,503 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
-2023-03-13 02:11:14,631 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
-2023-03-13 02:11:14,631 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
-2023-03-13 02:11:15,447 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
-2023-03-13 02:11:26,117 - INFO - Posting: https://apps.apple.com/us/app/id1455725091
-2023-03-13 02:11:26,990 - INFO - It took 0.35 minutes
+2023-03-13 03:11:11,841 - INFO - Crawling App Addict
+2023-03-13 03:11:11,842 - INFO - Crawling iOSSnoops
+2023-03-13 03:11:11,842 - INFO - Crawling appadvice
+2023-03-13 03:11:19,219 - INFO - New: 1
+2023-03-13 03:11:19,232 - INFO - ====== WebDriver manager ======
+2023-03-13 03:11:19,491 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
+2023-03-13 03:11:19,607 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
+2023-03-13 03:11:19,607 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
+2023-03-13 03:11:19,912 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
+2023-03-13 03:11:25,521 - INFO - Posting: https://apps.apple.com/us/app/id1455725091
+2023-03-13 03:11:26,407 - INFO - It took 0.26 minutes
