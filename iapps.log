@@ -1,12 +1,18 @@
-2023-03-13 09:11:35,841 - INFO - Crawling App Addict
-2023-03-13 09:11:35,841 - INFO - Crawling iOSSnoops
-2023-03-13 09:11:35,841 - INFO - Crawling appadvice
-2023-03-13 09:11:42,893 - INFO - New: 2
-2023-03-13 09:11:42,906 - INFO - ====== WebDriver manager ======
-2023-03-13 09:11:43,086 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
-2023-03-13 09:11:43,206 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
-2023-03-13 09:11:43,207 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
-2023-03-13 09:11:43,539 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
-2023-03-13 09:11:50,004 - INFO - Posting: https://apps.apple.com/us/app/id6445966283
-2023-03-13 09:12:25,181 - INFO - Posting: https://apps.apple.com/us/app/id1455725091
-2023-03-13 09:12:26,074 - INFO - It took 0.85 minutes
+2023-03-13 10:12:11,604 - INFO - Crawling App Addict
+2023-03-13 10:12:11,606 - INFO - Crawling iOSSnoops
+2023-03-13 10:12:11,609 - INFO - Crawling appadvice
+2023-03-13 10:12:18,288 - INFO - New: 8
+2023-03-13 10:12:18,300 - INFO - ====== WebDriver manager ======
+2023-03-13 10:12:20,512 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
+2023-03-13 10:12:20,708 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
+2023-03-13 10:12:20,708 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
+2023-03-13 10:12:22,778 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
+2023-03-13 10:12:35,847 - INFO - Posting: https://apps.apple.com/us/app/id1495786592
+2023-03-13 10:13:15,440 - INFO - Posting: https://apps.apple.com/us/app/id1325519613
+2023-03-13 10:13:51,703 - INFO - Posting: https://apps.apple.com/us/app/id1475371366
+2023-03-13 10:14:27,425 - INFO - Posting: https://apps.apple.com/us/app/id1158808877
+2023-03-13 10:15:03,363 - INFO - Posting: https://apps.apple.com/us/app/id1455725091
+2023-03-13 10:15:04,530 - INFO - Posting: https://apps.apple.com/us/app/id1483900320
+2023-03-13 10:15:42,205 - INFO - Posting: https://apps.apple.com/us/app/id680341208
+2023-03-13 10:16:20,210 - INFO - Posting: https://apps.apple.com/us/app/id1526441619
+2023-03-13 10:16:56,078 - INFO - It took 4.76 minutes
