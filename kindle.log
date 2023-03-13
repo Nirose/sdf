@@ -1,20 +1,15 @@
-2023-03-13 06:37:51,558 - INFO - Bookzio: 45 found
-2023-03-13 06:37:52,249 - INFO - Amazon: 30 found
-2023-03-13 06:37:52,659 - INFO - HUKD: 17 found
-2023-03-13 06:38:01,976 - INFO - New found: 3
-2023-03-13 06:38:01,989 - INFO - ====== WebDriver manager ======
-2023-03-13 06:38:02,125 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
-2023-03-13 06:38:02,282 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
-2023-03-13 06:38:02,283 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
-2023-03-13 06:38:02,641 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
-2023-03-13 06:38:10,608 - INFO - https://www.amazon.com/dp/B09KYJKFM1
-2023-03-13 06:38:10,608 - INFO - 1 of 3: https://www.amazon.com/dp/B09KYJKFM1
-2023-03-13 06:38:12,775 - INFO - https://www.amazon.com/dp/B0BXTHF7QM
-2023-03-13 06:38:12,775 - INFO - 2 of 6: https://www.amazon.com/dp/B0BXTHF7QM
-2023-03-13 06:38:17,796 - INFO - Couldnt find original price for https://www.amazon.com/dp/B0BXTHF7QM
-2023-03-13 06:38:17,796 - INFO - https://www.amazon.com/dp/B00CHKQXF2
-2023-03-13 06:38:17,796 - INFO - 3 of 6: https://www.amazon.com/dp/B00CHKQXF2
-2023-03-13 06:38:21,420 - ERROR - Traceback (most recent call last):
+2023-03-13 09:32:06,598 - INFO - Bookzio: 45 found
+2023-03-13 09:32:06,636 - INFO - HUKD: 17 found
+2023-03-13 09:32:06,926 - INFO - Amazon: 30 found
+2023-03-13 09:32:14,304 - INFO - New found: 5
+2023-03-13 09:32:14,316 - INFO - ====== WebDriver manager ======
+2023-03-13 09:32:17,152 - INFO - Get LATEST chromedriver version for google-chrome 110.0.5481
+2023-03-13 09:32:17,273 - INFO - There is no [linux64] chromedriver for browser 110.0.5481 in cache
+2023-03-13 09:32:17,273 - INFO - About to download new driver from https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip
+2023-03-13 09:32:17,539 - INFO - Driver has been saved in cache [/home/runner/.wdm/drivers/chromedriver/linux64/110.0.5481]
+2023-03-13 09:32:33,624 - INFO - https://www.amazon.com/dp/B00TUMS0CO
+2023-03-13 09:32:33,624 - INFO - 1 of 5: https://www.amazon.com/dp/B00TUMS0CO
+2023-03-13 09:32:35,079 - ERROR - Traceback (most recent call last):
   File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
     price = item.offers.listings[0].price.display_amount
             ^^^^
@@ -36,30 +31,81 @@ Traceback (most recent call last):
 selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
   (Session info: headless chrome=110.0.5481.177)
 Stacktrace:
-#0 0x557a0473fd93 <unknown>
-#1 0x557a0450e2d7 <unknown>
-#2 0x557a0454acaa <unknown>
-#3 0x557a0454adb1 <unknown>
-#4 0x557a045888f4 <unknown>
-#5 0x557a0456e61d <unknown>
-#6 0x557a04586619 <unknown>
-#7 0x557a0456e353 <unknown>
-#8 0x557a0453de40 <unknown>
-#9 0x557a0453f038 <unknown>
-#10 0x557a047938be <unknown>
-#11 0x557a047978f0 <unknown>
-#12 0x557a04777f90 <unknown>
-#13 0x557a04798b7d <unknown>
-#14 0x557a04769578 <unknown>
-#15 0x557a047bd348 <unknown>
-#16 0x557a047bd4d6 <unknown>
-#17 0x557a047d7341 <unknown>
-#18 0x7f64e70d6b43 <unknown>
+#0 0x55c055bf4d93 <unknown>
+#1 0x55c0559c32d7 <unknown>
+#2 0x55c0559ffcaa <unknown>
+#3 0x55c0559ffdb1 <unknown>
+#4 0x55c055a3d8f4 <unknown>
+#5 0x55c055a2361d <unknown>
+#6 0x55c055a3b619 <unknown>
+#7 0x55c055a23353 <unknown>
+#8 0x55c0559f2e40 <unknown>
+#9 0x55c0559f4038 <unknown>
+#10 0x55c055c488be <unknown>
+#11 0x55c055c4c8f0 <unknown>
+#12 0x55c055c2cf90 <unknown>
+#13 0x55c055c4db7d <unknown>
+#14 0x55c055c1e578 <unknown>
+#15 0x55c055c72348 <unknown>
+#16 0x55c055c724d6 <unknown>
+#17 0x55c055c8c341 <unknown>
+#18 0x7fb785821b43 <unknown>
 
 
-2023-03-13 06:38:21,420 - INFO - https://www.amazon.com/dp/B086HRNC38
-2023-03-13 06:38:21,420 - INFO - 4 of 6: https://www.amazon.com/dp/B086HRNC38
-2023-03-13 06:39:32,402 - INFO - https://www.amazon.com/dp/B08J82B1YG
-2023-03-13 06:39:32,402 - INFO - 5 of 6: https://www.amazon.com/dp/B08J82B1YG
-2023-03-13 06:40:42,456 - INFO - https://www.amazon.com/dp/B08BK6YKRG
-2023-03-13 06:40:42,456 - INFO - 6 of 6: https://www.amazon.com/dp/B08BK6YKRG
+2023-03-13 09:32:35,079 - INFO - https://www.amazon.com/dp/B09KYJKFM1
+2023-03-13 09:32:35,079 - INFO - 2 of 5: https://www.amazon.com/dp/B09KYJKFM1
+2023-03-13 09:32:37,445 - INFO - https://www.amazon.com/dp/B0BWBVC586
+2023-03-13 09:32:37,445 - INFO - 3 of 8: https://www.amazon.com/dp/B0BWBVC586
+2023-03-13 09:33:46,888 - INFO - https://www.amazon.com/dp/B07QLHQGZX
+2023-03-13 09:33:46,888 - INFO - 4 of 8: https://www.amazon.com/dp/B07QLHQGZX
+2023-03-13 09:34:56,437 - INFO - https://www.amazon.com/dp/B00CHKQXF2
+2023-03-13 09:34:56,437 - INFO - 5 of 8: https://www.amazon.com/dp/B00CHKQXF2
+2023-03-13 09:35:00,023 - ERROR - Traceback (most recent call last):
+  File "/home/runner/work/sdf/sdf/kindle.py", line 334, in posttoForum
+    price = item.offers.listings[0].price.display_amount
+            ^^^^
+UnboundLocalError: cannot access local variable 'item' where it is not associated with a value
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/sdf/sdf/kindle.py", line 346, in posttoForum
+    else driver.find_element(
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 830, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 440, in execute
+    self.error_handler.check_response(response)
+  File "/opt/hostedtoolcache/Python/3.11.2/x64/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py", line 245, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#kindle-price.a-color-price"}
+  (Session info: headless chrome=110.0.5481.177)
+Stacktrace:
+#0 0x55c055bf4d93 <unknown>
+#1 0x55c0559c32d7 <unknown>
+#2 0x55c0559ffcaa <unknown>
+#3 0x55c0559ffdb1 <unknown>
+#4 0x55c055a3d8f4 <unknown>
+#5 0x55c055a2361d <unknown>
+#6 0x55c055a3b619 <unknown>
+#7 0x55c055a23353 <unknown>
+#8 0x55c0559f2e40 <unknown>
+#9 0x55c0559f4038 <unknown>
+#10 0x55c055c488be <unknown>
+#11 0x55c055c4c8f0 <unknown>
+#12 0x55c055c2cf90 <unknown>
+#13 0x55c055c4db7d <unknown>
+#14 0x55c055c1e578 <unknown>
+#15 0x55c055c72348 <unknown>
+#16 0x55c055c724d6 <unknown>
+#17 0x55c055c8c341 <unknown>
+#18 0x7fb785821b43 <unknown>
+
+
+2023-03-13 09:35:00,023 - INFO - https://www.amazon.com/dp/B086HRNC38
+2023-03-13 09:35:00,023 - INFO - 6 of 8: https://www.amazon.com/dp/B086HRNC38
+2023-03-13 09:36:09,759 - INFO - https://www.amazon.com/dp/B08J82B1YG
+2023-03-13 09:36:09,759 - INFO - 7 of 8: https://www.amazon.com/dp/B08J82B1YG
+2023-03-13 09:37:20,084 - INFO - https://www.amazon.com/dp/B08BK6YKRG
+2023-03-13 09:37:20,084 - INFO - 8 of 8: https://www.amazon.com/dp/B08BK6YKRG
