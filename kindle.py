@@ -315,6 +315,9 @@ class booktoForum:
                     # pyperclip.copy(driver.page_source)
                     driver = self.getwoProxy(link)
                     time.sleep(1)
+                    if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
+                        continue
+                            
                     if f'id="collection_description"' in driver.page_source:
                         print('Collection is found')
                         tree = html.fromstring(driver.page_source)
@@ -322,8 +325,6 @@ class booktoForum:
                         for l in links:
                             asin = re.findall(r"B[0-9A-Z]{9,9}", l)[0]
                             listB.append(asin)
-                    elif 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
-                        continue
                     else:
                         try:
                             item = amazon.get_items(asin)[0]
