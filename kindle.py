@@ -322,6 +322,8 @@ class booktoForum:
                         for l in links:
                             asin = re.findall(r"B[0-9A-Z]{9,9}", l)[0]
                             listB.append(asin)
+                    elif 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
+                        continue
                     else:
                         try:
                             item = amazon.get_items(asin)[0]
