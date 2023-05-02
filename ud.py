@@ -24,11 +24,15 @@ try:
     BOT = os.environ['BOT']
     CHATID = os.environ['CHATID']
     #PUBOLD = os.environ['PUBOLD']
+    UD_CS = os.environ['UD_CS']
+    UD_FG = os.environ['UD_FG']
+    UD_IH = os.environ['UD_IH']
+    UD_DU = os.environ['UD_DU']
 except KeyError:
     INTERVAL = 3600
     BOT = ''
     CHATID = ''
-    from secrets import DEPLOYED
+    from secrets import DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU
 
 if DEPLOYED:
     logging.basicConfig(filename='udemy.log', filemode='w',
@@ -49,6 +53,7 @@ class Udemy:
         self.conn = dbc.connect_pool()
         self.foundcourses, self.newcourses, self.rsscourses = set(), set(), set()
         self.oldcourses = self.getID()
+        self.oldlinks = self.getLinks()
         self.tags = set()
         print(DEPLOYED,BOT,CHATID)
         self.scraper = cloudscraper.create_scraper(
@@ -124,13 +129,24 @@ class Udemy:
         finally:
             send.close()
             cur.close()
-
-        #Get the ID from the Feed
-        re = requests.get('https://jucktion.com/rss/feed.xml')
-        tree = html.fromstring(re.content)
-        for x in tree.xpath('//item/guid/text()'):
-            self.rsscourses.add(int(x.split('https://www.udemy.com/')[1]))
         return asin
+    
+    def getLinks(self):
+        links = set()
+        try:
+            # dbc.cur.execute('SELECT id,price from iapps')
+            sql = 'SELECT source from udemy'
+            send = dbc.connect()
+            cur = send.cursor()
+            cur.execute(sql)
+            for data in cur.fetchall():
+                links.add(data[0])
+        except:
+            print('Failed to get data!')
+        finally:
+            send.close()
+            cur.close()
+        return links
 
     def deleteOld(self):
         # delete the ASINS older than 3 days
@@ -225,10 +241,9 @@ class Udemy:
 
     def cs(self, page):
         linklist = []
-        logging.info('Crawling couponscorpion...')
-        url = 'https://couponscorpion.com'
+        logging.info('Crawling CS...')
         for p in range(1, page+1):
-            curl = url + '/page/' + str(p) + '/'
+            curl = UD_CS + '/page/' + str(p) + '/'
             re = self.scraper.get(curl)
             # with open('source.txt', 'w') as file:
             #     file.write(re.text)
@@ -238,9 +253,10 @@ class Udemy:
             # for e in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
             for x in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
                 linklist.append(x)
-                logging.info(x)
-        logging.info(f'{len(linklist)} links found in couponscorpion')
-        logging.info("Udemy links from couponscorpion tracking links:")
+                if not DEPLOYED:
+                    logging.info(x)
+        logging.info(f'{len(linklist)} links found in CS')
+        logging.info("Udemy links from CS tracking links:")
         linklist = reversed(linklist)
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.csq, url): url for url in linklist}
@@ -258,34 +274,68 @@ class Udemy:
         # for t in threads:
         #     t.join()
     def csq(self, source):
-        q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', requests.get(source,headers=self.headers).text)
-        try:
-            query = 'https://couponscorpion.com/scripts/udemy/out.php?go='+q[0]
-            # print(query)
+        if source not in self.oldlinks:
+            q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', requests.get(source,headers=self.headers).text)
             try:
-                re = self.scraper.get(query, headers=self.headers)
-                if self.unique(re.url):
-                    if self.verifyUdemy(re.url):
-                        logging.info(f'FREE: {re.url}')
-                        self.addNew(re.url, source)
-                    else:
-                        logging.info(f'NOT: {re.url}')
+                query = f'{UD_CS}/scripts/udemy/out.php?go='+q[0]
+                # print(query)
+                try:
+                    re = self.scraper.get(query, headers=self.headers)
+                    if self.unique(re.url):
+                        if self.verifyUdemy(re.url):
+                            logging.info(f'FREE: {re.url}')
+                            self.addNew(re.url, source)
+                        else:
+                            logging.info(f'NOT: {re.url}')
 
-            except Exception as e:
-                print('Failed: ', query)
-                logging.error(traceback.format_exc(),e)
-        except IndexError:
-            logging.info(
-                f'IndexError Failure:{re.url}')
+                except Exception as e:
+                    print('Failed: ', query)
+                    logging.error(traceback.format_exc(),e)
+            except IndexError:
+                logging.info(
+                    f'IndexError Failure:{re.url}')
+        
+    def du(self,page: int):
+        for page in range(1, page):
+            collection = []
+            re = self.scraper.get(UD_DU + str(page))
+            tree = html.fromstring(bytes(re.text, encoding='utf-8'))
+            for e in tree.xpath("//span[contains(@style,'text-decoration: line-through;color: rgb(33, 186, 69);')]/ancestor::div/div/a[contains(@class,'card-header')]/@href"):
+                collection.append(e)
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                futures = {executor.submit(self.duq, url): url for url in collection}
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        url = futures[future]
+                    except Exception as exc:
+                        print('%r generated an exception: %s' % (url, exc))
+    
+    def duq(self, source):
+        if source not in self.oldlinks:
+            logging.info('Crawling DU')
+            if not DEPLOYED:
+                logging.info('Crawling: ', source)
+            re = self.scraper.get("https://www.discudemy.com/go/"+source.split("/")[-1])
+            tree = html.fromstring(bytes(re.text, encoding='utf-8'))
+            url = tree.xpath('//a[contains(@id,"couponLink")]/@href')[0]
+
+            if self.unique(url):
+                if self.verifyUdemy(url):
+                    logging.info(f'FREE: {url}')
+                    self.addNew(url,source)
+                else:
+                    logging.info(f'NOT: {url}')
+            else:
+                logging.info(f'Already checked! ')
 
     def iv(self):
-        url = 'https://inventhigh.net/course'
-        logging.info('Crawling inventhigh')
-        re = self.scraper.get(url)
+        logging.info('Crawling IH')
+        re = self.scraper.get(UD_IH)
         collection = []
         tree = html.fromstring(bytes(re.text, encoding='utf-8'))
         for e in tree.xpath('//a[contains(@class,"btndarkgrid")]/@href'):
-            collection.append(f'https://inventhigh.net/{e}')
+            collection.append(f'{UD_IH}/{e}')
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.ivq, url): url for url in collection}
@@ -296,48 +346,51 @@ class Udemy:
                     print('%r generated an exception: %s' % (url, exc))
     
     def ivq(self, source):
-        re = self.scraper.get(source)
-        logging.info(f'Crawling: {source}')
-        tree = html.fromstring(bytes(re.text, encoding='utf-8'))
-        link = tree.xpath("(//a[contains(@id,'couponval')])[1]/@href")
-        url = link[0].split('murl=')[1]
-        logging.info(f'Checking: {url}')
-        if self.unique(url):
-            if self.verifyUdemy(url):
-                logging.info(f'FREE: {url}')
-                self.addNew(url,source)
-            else:
-                logging.info(f'NOT: {url}')
-        else:
-            logging.info(f'Already checked! ')
-
-    def fgq(self, source):
-        re = requests.get(source)
-        try:
-            tree = html.fromstring(re.text).xpath(
-                '//div/a[contains(@href,"couponCode")]/@href')
-        except:
-            print('Failed:', re.url)
-            logging.error(traceback.format_exc())
-        if tree:
-            url = tree[0]
+        if source not in self.oldlinks:
+            re = self.scraper.get(source)
+            if not DEPLOYED:
+                logging.info(f'Crawling: {source}')
+            tree = html.fromstring(bytes(re.text, encoding='utf-8'))
+            link = tree.xpath("(//a[contains(@id,'couponval')])[1]/@href")
+            url = link[0].split('murl=')[1]
+            #logging.info(f'Checking: {url}')
             if self.unique(url):
                 if self.verifyUdemy(url):
                     logging.info(f'FREE: {url}')
                     self.addNew(url,source)
                 else:
                     logging.info(f'NOT: {url}')
+            else:
+                logging.info(f'Already checked! ')
+
+    def fgq(self, source):
+        if source not in self.oldlinks:
+            re = requests.get(source)
+            try:
+                tree = html.fromstring(re.text).xpath(
+                    '//div/a[contains(@href,"couponCode")]/@href')
+            except:
+                print('Failed:', re.url)
+                logging.error(traceback.format_exc())
+            if tree:
+                url = tree[0]
+                if self.unique(url):
+                    if self.verifyUdemy(url):
+                        logging.info(f'FREE: {url}')
+                        self.addNew(url,source)
+                    else:
+                        logging.info(f'NOT: {url}')
 
     def fg(self):
-        url = 'https://freebiesglobal.com/tag/udemy-100-off/feed'
-        logging.info('Crawling freebiesglobal...')
-        re = requests.get(url)
+        logging.info('Crawling FG...')
+        re = requests.get(UD_FG)
         collection = []
         tree = etree.fromstring(bytes(re.text, encoding='utf-8'))
         for e in tree.xpath('//item/link'):
             collection.append(e.text)
-            logging.info(e.text)
-        logging.info(f'{len(collection)} links found in freebiesglobal')
+            if not DEPLOYED:
+                logging.info(e.text)
+        logging.info(f'{len(collection)} links found in FG')
         threads = list()
         for item in reversed(collection):
                 x = threading.Thread(
@@ -396,9 +449,9 @@ class Udemy:
 	>
 
 <channel>
-	<title>Freebies Global</title>
-	<atom:link href="https://freebiesglobal.com/feed" rel="self" type="application/rss+xml" />
-	<link>https://freebiesglobal.com</link>
+	<title>Udemies Global</title>
+	<atom:link href="https://udemiesglobal.com/feed" rel="self" type="application/rss+xml" />
+	<link>https://udemiesglobal.com</link>
 	<description>Free Udemy, BitDegree, Skillshare &#38; More Online Courses</description>
 	<lastBuildDate>Mon, 07 Sep 2020 14:35:10 +0000</lastBuildDate>
 	<language>en-US</language>
@@ -407,9 +460,9 @@ class Udemy:
 
 
 <image>
-        <url>https://media.freebiesglobal.com/2019/01/FreebiesGlobalIcon-1-150x150.png</url>
-        <title>Freebies Global</title>
-        <link>https://freebiesglobal.com</link>
+        <url>https://media.udemiesglobal.com/2019/01/udemiesGlobalIcon-1-150x150.png</url>
+        <title>udemies Global</title>
+        <link>https://udemiesglobal.com</link>
         <width>32</width>
         <height>32</height>
 </image>
@@ -468,20 +521,26 @@ if __name__ == "__main__":
     ud = Udemy()
     ud.deleteOld()
     ud.updateOld()
-    # ud.couponscorpion(7, 'both')
     # ud.writeXML()
     # print(len(ud.oldcourses))
     #print(ud.oldcourses)
     #print(ud.rsscourses)
-    ud.cs(7)
+    
+    try:
+        ud.du(5)
+    except Exception as e:
+        logging.error('DU website has failed',e)
     try:
         ud.iv()
     except Exception as e:
-        logging.error('Inventhigh website has failed',e)
+        logging.error('IH website has failed',e)
     try:
         ud.fg()
     except Exception as e:
-        logging.error('Freebies website has failed',e)
+        logging.error('FG website has failed',e)
+
+    if not DEPLOYED:
+        ud.cs(7)
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
     # print(ud.newcourses)
