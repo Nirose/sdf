@@ -28,13 +28,14 @@ try:
     UD_FG = os.environ['UD_FG']
     UD_IH = os.environ['UD_IH']
     UD_DU = os.environ['UD_DU']
+    DEBUG = os.environ['DEBUG']
 except KeyError:
     INTERVAL = 3600
     BOT = ''
     CHATID = ''
-    from secrets import DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU
+    from secrets import DEBUG, DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU
 
-if DEPLOYED:
+if DEBUG:
     logging.basicConfig(filename='udemy.log', filemode='w',
     format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -67,7 +68,7 @@ class Udemy:
     # SQL STUFF
     #
 
-    def addtoDB(self, idprice):
+    def addtoDB(self, idprice: list):
         # val = "('"+id + f"','https://apps.apple.com/us/app/id{id},{price}')"
         #format cid[0],price[1],image[2],title[3],desc[4],pub[5],link[6]
         sql = '''INSERT INTO {}(cid,price,image,title,des,pub,link,source) values(%s,%s,%s,%s,%s,%s,%s,%s)'''
@@ -80,7 +81,7 @@ class Udemy:
             print('Couldn\'t Add to DB!')
 
     # endpoint to send SQL
-    def sendSQL(self, sql, val=None):
+    def sendSQL(self, sql: str, val=None):
         try:
             # send = self.conn.getconn()
             with self.conn.getconn() as send, send.cursor() as cur:
@@ -164,7 +165,7 @@ class Udemy:
         except Exception as e:
             print('Could not update the older records', e)
 
-    def cleanDesc(self,title,des,img,link):
+    def cleanDesc(self,title: str,des: str,img: str,link: str):
         import re
         alt = re.sub(r'\[.*?\]','', title)
         alt = alt.strip()
@@ -180,7 +181,7 @@ class Udemy:
         cdesc = f'[img alt={alt}]{img}[/img]\n\n{desc}\n\n[hide][url={link}&utm_source=jucktion&utm_medium=forum&utm_campaign=udemy%20coupon][img alt=Enroll button]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url][/hide]'
         return cdesc
 
-    def getUdeId(self, url):
+    def getUdeId(self, url: str):
         cname = urlparse(url).path.split('/')[2]
         uurl = 'https://www.udemy.com/api-2.0/courses/' + cname +'?fields[course]=price,title,image_480x270,description'
         try:
@@ -195,7 +196,7 @@ class Udemy:
     # SQL STUFF END
 
     #Add to DB without creating html or xml pages
-    def addNew(self, url, source):
+    def addNew(self, url: str, source: str):
         
         # get course details for the current url
         details = self.getUdeId(url)
@@ -210,7 +211,7 @@ class Udemy:
             #print(data)
             self.addtoDB(data)
 
-    def createPages(self, url, kind):
+    def createPages(self, url: str, kind: str):
         # get course details for the current url
         details = self.getUdeId(url)
         notneeded = self.oldcourses.union(self.foundcourses)
@@ -238,9 +239,28 @@ class Udemy:
                 self.htmlitems.append('''
                     <li><a target="_blank" href="''' + details['link'] + '''">''' + details['title'] + details['price'] + '''</a></li>
                 ''')
+    def checkAdd(self, url: str, source: str):
+        if self.unique(url):
+            if self.verifyUdemy(url):
+                if not DEPLOYED:
+                    logging.info(f'FREE: {url}')
+                self.addNew(url,source)
+            else:
+                logging.info(f'NOT: {url}')
+        else:
+            logging.info(f'Already checked! ')
+    
+    def multiThread(self, threads: int, collection: list, function):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+            futures = {executor.submit(function, url): url for url in collection}
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    url = futures[future]
+                except Exception as exc:
+                    print('%r generated an exception: %s' % (url, exc))
 
-    def cs(self, page):
-        linklist = []
+    def cs(self, page: int):
+        collection = []
         logging.info('Crawling CS...')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
@@ -252,19 +272,13 @@ class Udemy:
             logging.info(f'Page: {p}')
             # for e in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
             for x in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
-                linklist.append(x)
+                collection.append(x)
                 if not DEPLOYED:
                     logging.info(x)
-        logging.info(f'{len(linklist)} links found in CS')
+        logging.info(f'{len(collection)} links found in CS')
         logging.info("Udemy links from CS tracking links:")
-        linklist = reversed(linklist)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.csq, url): url for url in linklist}
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    url = futures[future]
-                except Exception as exc:
-                    print('%r generated an exception: %s' % (url, exc))
+        collection = reversed(collection)
+        self.multiThread(10, collection, self.csq)
         # threads = list()
         # for e in reversed(linklist):
         #     x = threading.Thread(target=self.csq, args=(e,))
@@ -273,7 +287,7 @@ class Udemy:
 
         # for t in threads:
         #     t.join()
-    def csq(self, source):
+    def csq(self, source: str):
         if source not in self.oldlinks:
             q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', requests.get(source,headers=self.headers).text)
             try:
@@ -281,12 +295,7 @@ class Udemy:
                 # print(query)
                 try:
                     re = self.scraper.get(query, headers=self.headers)
-                    if self.unique(re.url):
-                        if self.verifyUdemy(re.url):
-                            logging.info(f'FREE: {re.url}')
-                            self.addNew(re.url, source)
-                        else:
-                            logging.info(f'NOT: {re.url}')
+                    self.checkAdd(re.url, source)
 
                 except Exception as e:
                     print('Failed: ', query)
@@ -294,58 +303,47 @@ class Udemy:
             except IndexError:
                 logging.info(
                     f'IndexError Failure:{re.url}')
+        else:
+            logging.info('Link already checked, skipping')
         
     def du(self,page: int):
-        for page in range(1, page):
-            collection = []
-            re = self.scraper.get(UD_DU + str(page))
+        logging.info('Crawling DU')
+        collection = []
+        for p in range(1, page):
+            re = self.scraper.get(UD_DU + str(p))
+            if DEBUG:
+                logging.info(f'{UD_DU + str(p)}')
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
             for e in tree.xpath("//span[contains(@style,'text-decoration: line-through;color: rgb(33, 186, 69);')]/ancestor::div/div/a[contains(@class,'card-header')]/@href"):
                 collection.append(e)
-            
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                futures = {executor.submit(self.duq, url): url for url in collection}
-                for future in concurrent.futures.as_completed(futures):
-                    try:
-                        url = futures[future]
-                    except Exception as exc:
-                        print('%r generated an exception: %s' % (url, exc))
+        logging.info(f'DU Links found: {len(collection)}')
+        self.multiThread(10, collection, self.duq)
     
-    def duq(self, source):
+    def duq(self, source: str):
         if source not in self.oldlinks:
-            logging.info('Crawling DU')
             if not DEPLOYED:
-                logging.info('Crawling: ', source)
+                logging.info(f'Crawling: {source}')
             re = self.scraper.get("https://www.discudemy.com/go/"+source.split("/")[-1])
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
             url = tree.xpath('//a[contains(@id,"couponLink")]/@href')[0]
 
-            if self.unique(url):
-                if self.verifyUdemy(url):
-                    logging.info(f'FREE: {url}')
-                    self.addNew(url,source)
-                else:
-                    logging.info(f'NOT: {url}')
-            else:
-                logging.info(f'Already checked! ')
+            self.checkAdd(url,source)
+        else:
+            logging.info('Link already checked, skipping')
+
 
     def iv(self):
         logging.info('Crawling IH')
-        re = self.scraper.get(UD_IH)
+        re = self.scraper.get(f'{UD_IH}/course')
         collection = []
         tree = html.fromstring(bytes(re.text, encoding='utf-8'))
         for e in tree.xpath('//a[contains(@class,"btndarkgrid")]/@href'):
             collection.append(f'{UD_IH}/{e}')
-        
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.ivq, url): url for url in collection}
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    url = futures[future]
-                except Exception as exc:
-                    print('%r generated an exception: %s' % (url, exc))
+        logging.info(f'IH Links found: {len(collection)}')
+
+        self.multiThread(15, collection, self.ivq)
     
-    def ivq(self, source):
+    def ivq(self, source: str):
         if source not in self.oldlinks:
             re = self.scraper.get(source)
             if not DEPLOYED:
@@ -353,33 +351,11 @@ class Udemy:
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
             link = tree.xpath("(//a[contains(@id,'couponval')])[1]/@href")
             url = link[0].split('murl=')[1]
-            #logging.info(f'Checking: {url}')
-            if self.unique(url):
-                if self.verifyUdemy(url):
-                    logging.info(f'FREE: {url}')
-                    self.addNew(url,source)
-                else:
-                    logging.info(f'NOT: {url}')
-            else:
-                logging.info(f'Already checked! ')
-
-    def fgq(self, source):
-        if source not in self.oldlinks:
-            re = requests.get(source)
-            try:
-                tree = html.fromstring(re.text).xpath(
-                    '//div/a[contains(@href,"couponCode")]/@href')
-            except:
-                print('Failed:', re.url)
-                logging.error(traceback.format_exc())
-            if tree:
-                url = tree[0]
-                if self.unique(url):
-                    if self.verifyUdemy(url):
-                        logging.info(f'FREE: {url}')
-                        self.addNew(url,source)
-                    else:
-                        logging.info(f'NOT: {url}')
+            if not DEPLOYED:
+                logging.info(f'Checking: {url}')
+            self.checkAdd(url, source)
+        else:
+            logging.info('Link already checked, skipping')
 
     def fg(self):
         logging.info('Crawling FG...')
@@ -402,7 +378,22 @@ class Udemy:
         # for item in tree:
         #     if self.verifyUdemy(item):
         #         print(item)
-    def unique(self, url):
+    def fgq(self, source: str):
+        if source not in self.oldlinks:
+            re = requests.get(source)
+            try:
+                tree = html.fromstring(re.text).xpath(
+                    '//div/a[contains(@href,"couponCode")]/@href')
+            except:
+                print('Failed:', re.url)
+                logging.error(traceback.format_exc())
+            if tree:
+                url = tree[0]
+                self.checkAdd(url,source)
+        else:
+            logging.info('Link already checked, skipping')
+
+    def unique(self, url: str):
         tag = urlparse(url).path.split('/')[2]
         try:
             coupon = parse_qs(urlparse(url).query)['couponCode'][0]

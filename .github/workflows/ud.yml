@@ -12,6 +12,7 @@ env: # Or as an environment variable
       CHATID: ${{ secrets.CHATID }}
       BOT: ${{ secrets.BOT }}
       DEPLOYED: ${{ secrets.DEPLOYED}}
+      DEBUG: ${{ secrets.DEBUG}}
       UD_IH: ${{ secrets.UD_IH }}
       UD_DU: ${{ secrets.UD_DU }}
       UD_FG: ${{ secrets.UD_FG }}
