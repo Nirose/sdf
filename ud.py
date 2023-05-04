@@ -28,7 +28,7 @@ try:
     UD_FG = os.environ['UD_FG']
     UD_IH = os.environ['UD_IH']
     UD_DU = os.environ['UD_DU']
-    DEBUG = os.environ['DEBUG']
+    DEBUG = int(os.environ['DEBUG'])
 except KeyError:
     INTERVAL = 3600
     BOT = ''
