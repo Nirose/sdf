@@ -29,7 +29,7 @@ try:
     UD_IH = os.environ['UD_IH']
     UD_DU = os.environ['UD_DU']
     DEBUG = int(os.environ['DEBUG'])
-    PRXY = int(os.environ['PRXY'])
+    PRXY = os.environ['PRXY']
     THREADS = int(os.environ['THREADS'])
 except KeyError:
     INTERVAL = 3600
