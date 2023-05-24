@@ -536,9 +536,11 @@ if __name__ == "__main__":
         ud.fg()
     except Exception as e:
         logging.error('FG website has failed',e)
-
-    if not DEPLOYED:
+    try:
         ud.cs(7)
+    except Exception as e:
+        logging.error('CS website has failed',e)
+        
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
     # print(ud.newcourses)
