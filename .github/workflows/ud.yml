@@ -17,6 +17,8 @@ env: # Or as an environment variable
       UD_DU: ${{ secrets.UD_DU }}
       UD_FG: ${{ secrets.UD_FG }}
       UD_CS: ${{ secrets.UD_CS }}
+      PRXY: ${{ secrets.PRXY }}
+      THREADS: ${{ secrets.THREADS }}
 jobs:
   cron:
     runs-on: ubuntu-latest

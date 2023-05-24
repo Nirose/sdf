@@ -29,11 +29,13 @@ try:
     UD_IH = os.environ['UD_IH']
     UD_DU = os.environ['UD_DU']
     DEBUG = int(os.environ['DEBUG'])
+    PRXY = int(os.environ['PRXY'])
+    THREADS = int(os.environ['THREADS'])
 except KeyError:
     INTERVAL = 3600
     BOT = ''
     CHATID = ''
-    from secrets import DEBUG, DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU
+    from secrets import DEBUG, DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU, PRXY, THREADS
 
 if DEBUG:
     logging.basicConfig(filename='udemy.log', filemode='w',
@@ -64,6 +66,11 @@ class Udemy:
                 'mobile': False
             }
         )
+        self.proxy = {
+            'http': PRXY,
+            'https': PRXY
+        }
+        self.threads = THREADS
     #
     # SQL STUFF
     #
@@ -264,7 +271,7 @@ class Udemy:
         logging.info('Crawling CS...')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
-            re = self.scraper.get(curl)
+            re = self.scraper.get(curl, proxies= self.proxy)
             # with open('source.txt', 'w') as file:
             #     file.write(re.text)
             # break
@@ -278,7 +285,7 @@ class Udemy:
         logging.info(f'{len(collection)} links found in CS')
         logging.info("Udemy links from CS tracking links:")
         collection = reversed(collection)
-        self.multiThread(10, collection, self.csq)
+        self.multiThread(self.threads, collection, self.csq)
         # threads = list()
         # for e in reversed(linklist):
         #     x = threading.Thread(target=self.csq, args=(e,))
@@ -289,12 +296,12 @@ class Udemy:
         #     t.join()
     def csq(self, source: str):
         if source not in self.oldlinks:
-            q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', requests.get(source,headers=self.headers).text)
+            q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', self.scraper.get(source, headers=self.headers, proxies=self.proxy).text)
             try:
                 query = f'{UD_CS}/scripts/udemy/out.php?go='+q[0]
                 # print(query)
                 try:
-                    re = self.scraper.get(query, headers=self.headers)
+                    re = requests.get(query, headers=self.headers)
                     self.checkAdd(re.url, source)
 
                 except Exception as e:
@@ -317,7 +324,7 @@ class Udemy:
             for e in tree.xpath("//span[contains(@style,'text-decoration: line-through;color: rgb(33, 186, 69);')]/ancestor::div/div/a[contains(@class,'card-header')]/@href"):
                 collection.append(e)
         logging.info(f'DU Links found: {len(collection)}')
-        self.multiThread(10, collection, self.duq)
+        self.multiThread(self.threads, collection, self.duq)
     
     def duq(self, source: str):
         if source not in self.oldlinks:
@@ -341,7 +348,7 @@ class Udemy:
             collection.append(f'{UD_IH}/{e}')
         logging.info(f'IH Links found: {len(collection)}')
 
-        self.multiThread(15, collection, self.ivq)
+        self.multiThread(self.threads, collection, self.ivq)
     
     def ivq(self, source: str):
         if source not in self.oldlinks:
