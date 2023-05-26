@@ -30,12 +30,13 @@ try:
     UD_DU = os.environ['UD_DU']
     DEBUG = int(os.environ['DEBUG'])
     PRXY = os.environ['PRXY']
+    USE_PRXY = int(os.environ['USE_PRXY'])
     THREADS = int(os.environ['THREADS'])
 except KeyError:
     INTERVAL = 3600
     BOT = ''
     CHATID = ''
-    from secrets import DEBUG, DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU, PRXY, THREADS
+    from secrets import DEBUG, DEPLOYED, UD_CS, UD_IH, UD_FG, UD_DU, PRXY, USE_PRXY, THREADS
 
 if DEBUG:
     logging.basicConfig(filename='udemy.log', filemode='w',
@@ -271,7 +272,7 @@ class Udemy:
         logging.info('Crawling CS...')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
-            re = self.scraper.get(curl, proxies= self.proxy)
+            re = self.scraper.get(curl, proxies= self.proxy) if USE_PRXY else self.scraper.get(curl)
             # with open('source.txt', 'w') as file:
             #     file.write(re.text)
             # break
@@ -296,7 +297,8 @@ class Udemy:
         #     t.join()
     def csq(self, source: str):
         if source not in self.oldlinks:
-            q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', self.scraper.get(source, headers=self.headers, proxies=self.proxy).text)
+            rq = self.scraper.get(source, headers=self.headers, proxies=self.proxy).text if USE_PRXY else self.scraper.get(source, headers=self.headers).text
+            q = regex.findall('''(?<=sf_offer_url = ')(.*)(?=';)''', rq)
             try:
                 query = f'{UD_CS}/scripts/udemy/out.php?go='+q[0]
                 # print(query)

@@ -18,6 +18,7 @@ env: # Or as an environment variable
       UD_FG: ${{ secrets.UD_FG }}
       UD_CS: ${{ secrets.UD_CS }}
       PRXY: ${{ secrets.PRXY }}
+      USE_PRXY: ${{ secrets.USE_PRXY }}
       THREADS: ${{ secrets.THREADS }}
 jobs:
   cron:
