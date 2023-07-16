@@ -362,6 +362,10 @@ class booktoForum:
                             except:
                                 print("Could not find price element in source code")
                                 price = False
+                                wait = random.randint(60, 120)
+                                print("Waiting {wait} seconds...")
+                                time.sleep(wait)
+                                continue
 
 
                         if price and "$0.00" in str(price):
@@ -532,6 +536,9 @@ class booktoForum:
                                 )
                                 driver.execute_script(f"arguments[0].click()", ele)
                             driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
+                            wait = random.randint(120, 180)
+                            print("Waiting {wait} seconds...")
+                            time.sleep(wait)
                             # Add the ASIN to the db
                     # break
                 except KeyboardInterrupt:
@@ -539,10 +546,7 @@ class booktoForum:
                 except Exception as e:
                     logging.error(traceback.format_exc())
                     print("Skipping ", link)
-                finally:
-                    wait = random.randint(120, 180)
-                    print("Waiting {wait} seconds...")
-                    time.sleep(wait)
+                    
                     
 
     @staticmethod
