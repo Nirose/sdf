@@ -6,6 +6,7 @@ from datetime import datetime
 import re
 from lxml import html
 import requests
+import random
 
 # import pyperclip
 import dbc
@@ -315,6 +316,12 @@ class booktoForum:
                     # pyperclip.copy(driver.page_source)
                     driver = self.getwoProxy(link)
                     time.sleep(1)
+
+                    # #Debug source
+                    with open(f'temp/{asin}.txt', 'w', encoding='utf-8') as f:
+                        f.write(driver.page_source)
+
+
                     if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
                         continue
                             
@@ -329,31 +336,38 @@ class booktoForum:
                         try:
                             item = amazon.get_items(asin)[0]
                         except Exception as e:
-                            print("Cannot get data from API")
+                            print("Cannot get data from API, using alternative")
+                            item = False
                             #print(traceback.format_exc())
 
 
-                        try:
+                        if item:
                             price = item.offers.listings[0].price.display_amount
-                        except:
-                            price = (
-                                driver.find_element(
-                                    by=By.CSS_SELECTOR, value=".kindle-price td .a-color-price"
-                                ).text
-                                if (
-                                    driver.find_elements(
-                                        by=By.CSS_SELECTOR,
-                                        value=".kindle-price td .a-color-price",
-                                    )
-                                )
-                                else driver.find_element(
-                                    by=By.CSS_SELECTOR, value="#kindle-price.a-color-price"
-                                ).text
-                            )
-
-                        if "$0.00" in str(price):
+                        else:
                             try:
-                                title = item.item_info.title.display_value
+                                price = (
+                                    driver.find_element(
+                                        by=By.CSS_SELECTOR, value=".kindle-price td .a-color-price"
+                                    ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value=".kindle-price td .a-color-price",
+                                        )
+                                    )
+                                    else driver.find_element(
+                                        by=By.CSS_SELECTOR, value="#kindle-price.a-color-price"
+                                    ).text
+                                )
+                            except:
+                                print("Could not find price element in source code")
+                                price = False
+
+
+                        if price and "$0.00" in str(price):
+                            try:
+                                if item:
+                                    title = item.item_info.title.display_value
                             except:
                                 title = (
                                     driver.find_element(
@@ -427,7 +441,8 @@ class booktoForum:
                                 else ""
                             )
                             try:
-                                img = item.images.primary.large.url
+                                if item:
+                                    img = item.images.primary.large.url
                             except:
                                 img = (
                                     driver.find_element(
@@ -516,16 +531,19 @@ class booktoForum:
                                     value="#post_confirm_buttons .button_submit",
                                 )
                                 driver.execute_script(f"arguments[0].click()", ele)
-                            
-                            print("Waiting 1 minute...")
+                            driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
                             # Add the ASIN to the db
-                            time.sleep(60)
                     # break
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
                     logging.error(traceback.format_exc())
                     print("Skipping ", link)
+                finally:
+                    wait = random.randint(120, 180)
+                    print("Waiting {wait} seconds...")
+                    time.sleep(wait)
+                    
 
     @staticmethod
     def run():

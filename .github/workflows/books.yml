@@ -5,7 +5,7 @@ name: books
 on:
  workflow_dispatch:
  schedule:
-   - cron: "30 */3 * * *"
+   - cron: "30 */1 * * *"
 permissions: write-all
 env: # Or as an environment variable
       DB_URL: ${{ secrets.DB_URL }}
