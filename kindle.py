@@ -318,8 +318,8 @@ class booktoForum:
                     time.sleep(1)
 
                     # #Debug source
-                    with open(f'temp/{asin}.txt', 'w', encoding='utf-8') as f:
-                        f.write(driver.page_source)
+                    # with open(f'temp/{asin}.txt', 'w', encoding='utf-8') as f:
+                    #     f.write(driver.page_source)
 
 
                     if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
@@ -536,7 +536,7 @@ class booktoForum:
                                 )
                                 driver.execute_script(f"arguments[0].click()", ele)
                             driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
-                            wait = random.randint(120, 180)
+                            wait = random.randint(120, 180) 
                             print("Waiting {wait} seconds...")
                             time.sleep(wait)
                             # Add the ASIN to the db
