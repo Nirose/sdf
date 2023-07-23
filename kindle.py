@@ -90,7 +90,8 @@ class booktoForum:
         else:
             from webdriver_manager.chrome import ChromeDriverManager
             from webdriver_manager.core.utils import ChromeType
-            self.d = webdriver.Chrome(service=Service(ChromeDriverManager(chrome_type=ChromeType.BRAVE, version="115.0.5790.102").install()), options=options)
+            from selenium.webdriver.chrome.service import Service as BraveService
+            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, version="115.0.5790.102").install()), options=options)
 
     def stop(self):
         driver = self.d
