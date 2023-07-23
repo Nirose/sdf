@@ -7,6 +7,7 @@ import re
 from lxml import html
 import requests
 import random
+#import cloudscraper
 
 # import pyperclip
 import dbc
@@ -49,8 +50,17 @@ class booktoForum:
     def __init__(self):
         # AWS location r"C:\Users\Administrator\Desktop\J\Chrome\bin\chrome.exe"
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "en-US,en;q=0.9"
         }
+        # self.scraper = cloudscraper.create_scraper(
+        #     browser={
+        #         'browser': 'firefox',
+        #         'platform': 'windows',
+        #         'mobile': False
+        #     }
+        # )
 
         self.user = USER
         self.passw = PASSWORD
@@ -58,13 +68,20 @@ class booktoForum:
         self.oldAsins = self.getASIN()
 
     def chrome(self):
+        mobile_emulation = { 
+            "deviceMetrics": { "width": 390, "height": 844, "pixelRatio": 3.0 },
+            "userAgent": "Mozilla/5.0 (Linux; Android 10; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.196 Mobile Safari/537.36" 
+        }
         options = Options()
         # options.binary_location = os.getenv('CHROME')
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--incognito")
-        options.add_argument("--headless")
+        #options.add_argument("--headless")
         options.add_argument("--disable-gpu")
+        options.add_experimental_option("excludeSwitches", ["enable-automation"]) # hide top bar
+        options.add_experimental_option("mobileEmulation", mobile_emulation)
+        #options.add_argument("--auto-open-devtools-for-tabs") # open devtools
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=1")
         if not DEPLOYED:
@@ -72,7 +89,7 @@ class booktoForum:
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             from webdriver_manager.chrome import ChromeDriverManager
-            self.d = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            self.d = webdriver.Chrome(service=Service(ChromeDriverManager(version="114.0.5735.16").install()), options=options)
 
     def stop(self):
         driver = self.d
@@ -81,11 +98,10 @@ class booktoForum:
     def login(self):
         # Init Chrome
         self.chrome()    
-        driver = self.d
-        driver.get("https://www.jucktion.com/f/help?type=rss")
+        driver = self.d      
+        driver.get("https://www.jucktion.com/f/login/?type=rss")
         cookie = {"name": "jktn_selenium", "value": "kindle", "domain": ".jucktion.com"}
         driver.add_cookie(cookie)
-        driver.get("https://www.jucktion.com/f/login/")
         driver.find_elements(by=By.NAME, value="user")[1].send_keys(self.user)
         driver.find_elements(by=By.NAME, value="passwrd")[1].send_keys(self.passw)
         driver.find_elements(by=By.NAME, value="cookielength")[0].send_keys("360")
@@ -155,9 +171,10 @@ class booktoForum:
     def amazon(self, url):
         ar = requests.get(url, headers=self.headers)
 
-        # Test the source
-        # with open('file.txt', 'w') as file:
-        #     file.write(str(ar.content))
+        #Test the source
+        if not DEPLOYED:
+            with open('debug/amazon.html', 'w', encoding='utf-8') as file:
+                file.write(str(ar.content))
 
         tree = html.fromstring(str(ar.content))
         links = 0
@@ -305,21 +322,25 @@ class booktoForum:
         # final = ','.join(list(listofB))
         # print(final)
         # print(listB)
+        #wait for login
+        #time.sleep(120)
         for i, asin in enumerate(listB):
             if asin not in self.oldAsins:
                 try:
                     logging.info(f'https://www.amazon.com/dp/{str(asin)}')
                     link = "https://www.amazon.com/dp/" + str(asin)
                     logging.info(f"{i+1} of {len(listB)}: {link}")
+                    
                     print(f"{i+1} of {len(listB)}: ", link)
                     # driver = getProxy(link)  # Use proxy to get Amazon content
                     # pyperclip.copy(driver.page_source)
                     driver = self.getwoProxy(link)
                     time.sleep(1)
 
-                    # #Debug source
-                    # with open(f'temp/{asin}.txt', 'w', encoding='utf-8') as f:
-                    #     f.write(driver.page_source)
+                    #Debug source
+                    if not DEPLOYED:
+                        with open(f'debug/{asin}.txt', 'w', encoding='utf-8') as f:
+                            f.write(driver.page_source)
 
 
                     if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
@@ -363,41 +384,39 @@ class booktoForum:
                                 print("Could not find price element in source code")
                                 price = False
                                 wait = random.randint(60, 120)
-                                print("Waiting {wait} seconds...")
+                                print(f"Waiting {wait} seconds...")
                                 time.sleep(wait)
                                 continue
 
 
                         if price and "$0.00" in str(price):
-                            try:
-                                if item:
-                                    title = item.item_info.title.display_value
-                            except:
+                            if item:
+                                title = item.item_info.title.display_value
+                            else:
                                 title = (
                                     driver.find_element(
-                                        by=By.XPATH, value='//span[@id="ebooksproducttitle"]'
+                                        by=By.XPATH, value='//span[@id="ebooksTitle"]'
                                     ).text
                                     if (
                                         driver.find_elements(
-                                            by=By.CSS_SELECTOR, value="#ebooksproducttitle"
+                                            by=By.CSS_SELECTOR, value="#ebooksTitle"
                                         )
                                     )
                                     else driver.find_element(
                                         by=By.XPATH, value='//span[@id="productTitle"]'
                                     ).text
                                 )
-                            finally:
-                                cleantitle = title
+                            cleantitle = title
                             try:
                                 ogprice = (
                                     driver.find_element(
                                         by=By.CSS_SELECTOR,
-                                        value=".digital-list-price .a-text-strike",
+                                        value="#digital-list-price.a-text-strike",
                                     ).text
                                     if (
                                         driver.find_elements(
                                             by=By.CSS_SELECTOR,
-                                            value=".digital-list-price .a-text-strike",
+                                            value="#digital-list-price.a-text-strike",
                                         )
                                     )
                                     else driver.find_element(
@@ -423,43 +442,57 @@ class booktoForum:
                                 continue
 
                             rating = (
-                                driver.find_element(
-                                    by=By.CSS_SELECTOR, value="span#acrPopover"
-                                ).get_attribute("title")
-                                if (
+                                    driver.find_element(
+                                        by=By.CSS_SELECTOR, value="span#acrPopover"
+                                    ).get_attribute("title")
+                                if 
                                     driver.find_elements(
                                         by=By.CSS_SELECTOR, value="span#acrPopover"
                                     )
-                                )
+                                else 
+                                    driver.find_element(
+                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > i > span"
+                                    ).text
+                                if
+                                    driver.find_elements(
+                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > i > span"
+                                    )
                                 else ""
                             )
                             revnum = (
-                                driver.find_element(
-                                    by=By.CSS_SELECTOR, value="span#acrCustomerReviewText"
-                                ).text
-                                if (
+                                    driver.find_element(
+                                        by=By.CSS_SELECTOR, value="span#acrCustomerReviewText"
+                                    ).text
+                                if 
                                     driver.find_elements(
                                         by=By.CSS_SELECTOR, value="span#acrCustomerReviewText"
                                     )
-                                )
+                                else 
+                                    driver.find_element(
+                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > span:nth-child(3)"
+                                    ).text
+                                if 
+                                    driver.find_elements(
+                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > span:nth-child(3)"
+                                    )
                                 else ""
                             )
-                            try:
-                                if item:
-                                    img = item.images.primary.large.url
-                            except:
+
+                            if item:
+                                img = item.images.primary.large.url
+                            else:
                                 img = (
-                                    driver.find_element(
-                                        by=By.ID, value="ebooksImgBlkFront"
-                                    ).get_attribute("src")
-                                    if (
+                                        driver.find_element(
+                                            by=By.ID, value="ebooksImgBlkFront"
+                                        ).get_attribute("src")
+                                    if 
                                         driver.find_elements(
-                                            by=By.CSS_SELECTOR, value="#ebooksImgBlkFront"
+                                            by=By.ID, value="ebooksImgBlkFront"
                                         )
-                                    )
-                                    else driver.find_element(
-                                        by=By.CSS_SELECTOR, value="#mainImageContainer img"
-                                    ).get_attribute("src")
+                                    else 
+                                        driver.find_element(
+                                            by=By.CSS_SELECTOR, value="#mainImageContainer img"
+                                        ).get_attribute("src")
                                 )
                             try:
                                 author = " ".join(
@@ -471,47 +504,64 @@ class booktoForum:
                                 )
                             except:
                                 author = (
-                                    driver.find_element(
-                                        by=By.CLASS_NAME, value="contributorNameID"
-                                    ).text
-                                    if (
+                                        driver.find_element(
+                                            by=By.CSS_SELECTOR, value="#bylineContributor"
+                                        ).text
+                                    if 
                                         driver.find_elements(
-                                            by=By.CLASS_NAME, value="contributorNameID"
+                                            by=By.CSS_SELECTOR, value="#bylineContributor"
                                         )
-                                    )
-                                    else driver.find_element(
-                                        by=By.CSS_SELECTOR, value=".author a"
-                                    ).text
+                                    else 
+                                        driver.find_element(
+                                            by=By.CSS_SELECTOR, value=".author a"
+                                        ).text
                                 )
 
                             title += " (" + str(ogprice) + " to Free) #Kindle"
 
-                            desc = driver.find_element(
-                                by=By.CSS_SELECTOR,
-                                value="#bookDescription_feature_div .a-expander-content",
-                            ).text
+                            desc = (
+                                driver.find_element(
+                                    by=By.CSS_SELECTOR,
+                                    value="#drengr_MobileTabbedDescriptionOverviewContent_feature_div"
+                                ).text
+                                if 
+                                    driver.find_element(
+                                    by=By.ID,
+                                    value="drengr_MobileTabbedDescriptionOverviewContent_feature_div"
+                                    )
+                                else 
+                                    driver.find_element(
+                                    by=By.CSS_SELECTOR,
+                                    value="#bookDescription_feature_div .a-expander-content"
+                                    ).text
+                                if 
+                                    driver.find_element(
+                                    by=By.ID,
+                                    value="bookDescription_feature_div"
+                                    )
+                                else ""
+                            )
                             # driver.switch_to.default_content()
 
-                            # print(title)
-                            # print(ogprice)
-                            # print(curprice)
-                            # print(rating)
-                            # print(revnum)
-                            # print(img)
-                            # print(author)
-                            # print(desc)
+                            print(title)
+                            print(ogprice)
+                            print(rating)
+                            print(revnum)
+                            print(img)
+                            print(author)
+                            print(desc)
                             textform = """[img alt=Cover Image for {0}]{1}[/img]
 
-    [b]Author: [color=green]{2}[/color].
+[b]Author: [color=green]{2}[/color].
 
-    Rating:[color=maroon] {3} ({4})[/color][/b]
+Rating:[color=maroon] {3} ({4})[/color][/b]
 
-    [size=10pt][color=green][b]Book Description:[/b][/color][/size]
+[size=10pt][color=green][b]Book Description:[/b][/color][/size]
 
-    {5}
+{5}
 
 
-    [url={6}?tag=amazonint-20][img alt=Download {0} for Kindle]https://www.jucktion.com/f/uploads/amzbtn.png[/img][/url]   [url=https://www.jucktion.com/f/books?utm_campaign=morebooks][img alt=Download More Amazon Books]https://www.jucktion.com/f/uploads/amazonbooks.png[/img][/url]"""
+[url={6}?tag=amazonint-20][img alt=Download {0} for Kindle]https://www.jucktion.com/f/uploads/amzbtn.png[/img][/url]   [url=https://www.jucktion.com/f/books?utm_campaign=morebooks][img alt=Download More Amazon Books]https://www.jucktion.com/f/uploads/amazonbooks.png[/img][/url]"""
                             copy = textform.format(
                                 cleantitle, img, author, rating, revnum, desc, link
                             )
@@ -536,8 +586,8 @@ class booktoForum:
                                 )
                                 driver.execute_script(f"arguments[0].click()", ele)
                             driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
-                            wait = random.randint(120, 180) 
-                            print("Waiting {wait} seconds...")
+                            wait = random.randint(10, 60) 
+                            print(f"Waiting {wait} seconds...")
                             time.sleep(wait)
                             # Add the ASIN to the db
                     # break
@@ -602,6 +652,8 @@ if __name__ == "__main__":
             task.posttoForum(listed)
         except Exception as e:
             logging.error(traceback.format_exc())
+        except KeyboardInterrupt:
+            task.stop()
         finally:
             task.stop()
     else:

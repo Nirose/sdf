@@ -3,7 +3,8 @@ __pycache__/
 .vscode/
 vendor/
 tests/
-temp/
+debug/
 feed.*
 secrets.py
-source.txt
+*.txt
+*.html
