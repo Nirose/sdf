@@ -62,7 +62,7 @@ class apptoForum:
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             from webdriver_manager.chrome import ChromeDriverManager
-            self.d = webdriver.Chrome(executable_path=ChromeDriverManager(version="109.0.5414.74").install(), options=options)
+            self.d = webdriver.Chrome(executable_path=ChromeDriverManager(version="114.0.5735.16").install(), options=options)
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
 
