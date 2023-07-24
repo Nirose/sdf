@@ -4,5 +4,5 @@ urllib3
 selenium
 psycopg2-binary
 python-amazon-paapi
-webdriver_manager
+webdriver_manager==3.9.0
 cloudscraper

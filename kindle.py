@@ -89,8 +89,8 @@ class booktoForum:
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/brave-browser"
-            from webdriver_manager.chrome import ChromeDriverManager
             from webdriver_manager.core.utils import ChromeType
+            from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
             self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, version="115.0.5790.102").install()), options=options)
 
@@ -454,11 +454,11 @@ class booktoForum:
                                     )
                                 else 
                                     driver.find_element(
-                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > i > span"
-                                    ).text
+                                        by=By.CSS_SELECTOR, value="#acrCustomerReviewLink .a-size-base"
+                                    ).text + ' out of 5'
                                 if
                                     driver.find_elements(
-                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > i > span"
+                                        by=By.ID, value="acrCustomerReviewLink"
                                     )
                                 else ""
                             )
@@ -473,10 +473,10 @@ class booktoForum:
                                 else 
                                     driver.find_element(
                                         by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > span:nth-child(3)"
-                                    ).text
+                                    ).text + ' Reviews'
                                 if 
                                     driver.find_elements(
-                                        by=By.CSS_SELECTOR, value="a#acrCustomerReviewLink > span:nth-child(3)"
+                                        by=By.ID, value="acrCustomerReviewLink"
                                     )
                                 else ""
                             )
@@ -546,13 +546,13 @@ class booktoForum:
                             )
                             # driver.switch_to.default_content()
 
-                            print(title)
-                            print(ogprice)
-                            print(rating)
-                            print(revnum)
-                            print(img)
-                            print(author)
-                            print(desc)
+                            # print(title)
+                            # print(ogprice)
+                            # print(rating)
+                            # print(revnum)
+                            # print(img)
+                            # print(author)
+                            # print(desc)
                             textform = """[img alt=Cover Image for {0}]{1}[/img]
 
 [b]Author: [color=green]{2}[/color].
@@ -588,7 +588,7 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
                                     value="#post_confirm_buttons .button_submit",
                                 )
                                 driver.execute_script(f"arguments[0].click()", ele)
-                            driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
+                            #driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
                             wait = random.randint(10, 60) 
                             print(f"Waiting {wait} seconds...")
                             time.sleep(wait)
