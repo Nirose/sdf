@@ -44,6 +44,11 @@ amazon = AmazonApi(AMZKEY, AMZSECRET, "arnz-20", "US",throttling=int(THROTTLE))
 #     print('Could not execute command')
 
 # add row
+def cleanDir(folder):
+    logging.info(f'Deleting contents of folder {folder}')
+    for f in os.listdir(folder):
+       os.remove(os.path.join(folder, f))
+       #print(os.path.join(dir, f))
 
 
 class booktoForum:
@@ -342,9 +347,8 @@ class booktoForum:
 
                     #Debug source
                     if not DEPLOYED:
-                        with open(f'debug/{asin}.txt', 'w', encoding='utf-8') as f:
+                        with open(f'debug/{asin}.html', 'w', encoding='utf-8') as f:
                             f.write(driver.page_source)
-
 
                     if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
                         continue
@@ -393,6 +397,7 @@ class booktoForum:
 
 
                         if price and "$0.00" in str(price):
+                            time.sleep(1)
                             if item:
                                 title = item.item_info.title.display_value
                             else:
@@ -508,16 +513,29 @@ class booktoForum:
                             except:
                                 author = (
                                         driver.find_element(
-                                            by=By.CSS_SELECTOR, value="#bylineContributor"
+                                            by=By.CSS_SELECTOR, value="a#bylineContributor"
                                         ).text
                                     if 
                                         driver.find_elements(
-                                            by=By.CSS_SELECTOR, value="#bylineContributor"
+                                            by=By.ID, value="bylineContributor"
                                         )
                                     else 
                                         driver.find_element(
                                             by=By.CSS_SELECTOR, value=".author a"
                                         ).text
+                                    if
+                                        driver.find_elements(
+                                            by=By.CLASS_NAME, value="author"
+                                        )
+                                    else 
+                                        driver.find_element(
+                                            by=By.CSS_SELECTOR, value="#contributorLink"
+                                        ).text
+                                    if
+                                        driver.find_elements(
+                                            by=By.ID, value="contributorLink"
+                                        )
+                                    else ''
                                 )
 
                             title += " (" + str(ogprice) + " to Free) #Kindle"
@@ -528,7 +546,7 @@ class booktoForum:
                                     value="#drengr_MobileTabbedDescriptionOverviewContent_feature_div"
                                 ).text
                                 if 
-                                    driver.find_element(
+                                    driver.find_elements(
                                     by=By.ID,
                                     value="drengr_MobileTabbedDescriptionOverviewContent_feature_div"
                                     )
@@ -538,7 +556,7 @@ class booktoForum:
                                     value="#bookDescription_feature_div .a-expander-content"
                                     ).text
                                 if 
-                                    driver.find_element(
+                                    driver.find_elements(
                                     by=By.ID,
                                     value="bookDescription_feature_div"
                                     )
@@ -636,8 +654,9 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
 
 if __name__ == "__main__":
     start = time.time()
-    # msg = pb()
-    # msg.push('n', 'ct', "Automations", "Book Posting Started", channel="nn")
+    if not DEPLOYED:
+        cleanDir('debug')
+
     task = booktoForum()
     listed = task.removegetAdd()
 
@@ -649,18 +668,20 @@ if __name__ == "__main__":
     # TASK DONE HERE
     logging.info(f"New found: {len(listed)}")
     print(f"New found {len(listed)}")
-    if len(listed) > 0:
-        task.login()
-        try:
-            task.posttoForum(listed)
-        except Exception as e:
-            logging.error(traceback.format_exc())
-        except KeyboardInterrupt:
-            task.stop()
-        finally:
-            task.stop()
-    else:
-        pass
+    from pyvirtualdisplay import Display
+    with Display(visible=0, size=(1024, 768)) as disp:
+        if len(listed) > 0:
+            task.login()
+            try:
+                task.posttoForum(listed)
+            except Exception as e:
+                logging.error(traceback.format_exc())
+            except KeyboardInterrupt:
+                task.stop()
+            finally:
+                task.stop()
+        else:
+            pass
     
     end = time.time()
     # msg.push('l', 'ct', "Automations", f"Book posting completed in {round((end-start)/60,2)} minutes",
