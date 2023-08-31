@@ -279,7 +279,7 @@ class Udemy:
             tree = html.fromstring(re.content)
             logging.info(f'Page: {p}')
             # for e in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
-            for x in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
+            for x in tree.xpath('//div[@class="newsdetail newstitleblock rh_gr_right_sec"]/h2/a/@href'):
                 collection.append(x)
                 if not DEPLOYED:
                     logging.info(x)

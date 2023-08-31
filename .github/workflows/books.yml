@@ -26,7 +26,7 @@ jobs:
         echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-release.list
         sudo apt update
         sudo apt install brave-browser
-    - name: Install dependencies
+    - name: Install Virtual Server
       run: |
         sudo apt-get install xvfb xserver-xephyr tigervnc-standalone-server x11-utils
     - uses: actions/checkout@v3
