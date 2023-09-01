@@ -279,7 +279,7 @@ class Udemy:
             tree = html.fromstring(re.content)
             logging.info(f'Page: {p}')
             # for e in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
-            for x in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
+            for x in tree.xpath('//div[@class="newsdetail newstitleblock rh_gr_right_sec"]/h2/a/@href'):
                 collection.append(x)
                 if not DEPLOYED:
                     logging.info(x)
@@ -436,79 +436,6 @@ class Udemy:
         else:
             return False
 
-    # Get and manage data
-
-    def writeXML(self):
-        self.rss_head = '''<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
-	xmlns:content="http://purl.org/rss/1.0/modules/content/"
-	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
-	xmlns:atom="http://www.w3.org/2005/Atom"
-	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-	>
-
-<channel>
-	<title>Udemies Global</title>
-	<atom:link href="https://udemiesglobal.com/feed" rel="self" type="application/rss+xml" />
-	<link>https://udemiesglobal.com</link>
-	<description>Free Udemy, BitDegree, Skillshare &#38; More Online Courses</description>
-	<lastBuildDate>Mon, 07 Sep 2020 14:35:10 +0000</lastBuildDate>
-	<language>en-US</language>
-	<sy:updatePeriod>hourly</sy:updatePeriod>
-	<sy:updateFrequency>1</sy:updateFrequency>
-
-
-<image>
-        <url>https://media.udemiesglobal.com/2019/01/udemiesGlobalIcon-1-150x150.png</url>
-        <title>udemies Global</title>
-        <link>https://udemiesglobal.com</link>
-        <width>32</width>
-        <height>32</height>
-</image>
-    '''
-
-        self.rss_foot = '''
-</channel>
-</rss>'''
-        content = self.rss_head + \
-            str(''.join(reversed(self.xmlitems))) + self.rss_foot
-        with open('feed.xml', 'w') as f:
-            f.write(content)
-
-    def writeHTML(self):
-        self.html_head = '''<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-    html {
-        background-color: #1d1919;
-        color: blanchedalmond;
-    }
-    a {
-        color: darkgray;
-    }
-    a:visited {
-        color: coral;
-    }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <ol>'''
-        self.html_foot = '''
-        </ol>
-    </div>
-</body>
-</html>'''
-
-        content = self.html_head + \
-            str(''.join(reversed(self.htmlitems))) + self.html_foot
-        with open('feed.html', 'w', encoding='UTF-8') as f:
-            f.write(content)
 
     def manageID(self):
         # self.deleteOld()
@@ -526,18 +453,18 @@ if __name__ == "__main__":
     #print(ud.oldcourses)
     #print(ud.rsscourses)
     
-    # try:
-    #     ud.du(5)
-    # except Exception as e:
-    #     logging.error('DU website has failed',e)
-    # try:
-    #     ud.iv()
-    # except Exception as e:
-    #     logging.error('IH website has failed',e)
-    # try:
-    #     ud.fg()
-    # except Exception as e:
-    #     logging.error('FG website has failed',e)
+    try:
+        ud.du(5)
+    except Exception as e:
+        logging.error('DU website has failed',e)
+    try:
+        ud.iv()
+    except Exception as e:
+        logging.error('IH website has failed',e)
+    try:
+        ud.fg()
+    except Exception as e:
+        logging.error('FG website has failed',e)
     try:
         ud.cs(7)
     except Exception as e:
