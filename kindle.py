@@ -386,6 +386,16 @@ class booktoForum:
                                     else driver.find_element(
                                         by=By.CSS_SELECTOR, value="#kindle-price.a-color-price"
                                     ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value="#kindle-price.a-color-price",
+                                        )
+                                    )
+                                    else driver.find_element(
+                                        by=By.CSS_SELECTOR, value="#price-to-pay"
+                                    ).text
+
                                 )
                             except:
                                 print("Could not find price element in source code")
@@ -419,8 +429,19 @@ class booktoForum:
                                 ogprice = (
                                     driver.find_element(
                                         by=By.CSS_SELECTOR,
-                                        value="#digital-list-price.a-text-strike",
+                                        value="#basis-price",
                                     ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value="#basis-price",
+                                        )
+                                    )
+                                    else
+                                        driver.find_element(
+                                            by=By.CSS_SELECTOR,
+                                            value="#digital-list-price.a-text-strike",
+                                        ).text
                                     if (
                                         driver.find_elements(
                                             by=By.CSS_SELECTOR,
