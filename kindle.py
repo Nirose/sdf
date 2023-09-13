@@ -107,8 +107,9 @@ class booktoForum:
     def login(self):
         # Init Chrome
         self.chrome()    
-        driver = self.d      
+        driver = self.d
         driver.get("https://www.jucktion.com/f/login/?type=rss")
+        time.sleep(3)
         cookie = {"name": "jktn_selenium", "value": "kindle", "domain": ".jucktion.com"}
         driver.add_cookie(cookie)
         driver.find_elements(by=By.NAME, value="user")[1].send_keys(self.user)
