@@ -90,8 +90,9 @@ class booktoForum:
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=1")
         if not DEPLOYED:
-            s = Service(executable_path=os.getenv("CHROMEDRIVER"))
-            self.d = webdriver.Chrome(service=s, options=options)
+            options.add_argument("--user-data-dir=/home/node/snap/chromium/common/chromium/")
+            s = service(executable_path='/usr/bin/chromedriver')
+            self.d = webdriver.chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/brave-browser"
             from webdriver_manager.core.utils import ChromeType
