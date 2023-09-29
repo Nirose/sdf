@@ -559,7 +559,7 @@ class booktoForum:
                                     else ''
                                 )
 
-                            title += " (" + str(ogprice) + " to Free) #Kindle"
+                            title += " (" + str(ogprice) + " to Free)"
 
                             desc = (
                                 driver.find_element(
