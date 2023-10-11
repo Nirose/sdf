@@ -333,7 +333,7 @@ class apptoForum:
                     title = tree.xpath(
                         '//h1[@class="product-header__title app-header__title"]/text()'
                     )[0].strip()
-                    ptitle = "[iOS] " + title + " ($" + price + " to Free)"
+                    ptitle = "[iOS] " + title.encode('ascii', 'ignore').decode('ascii') + " ($" + price + " to Free)"
                     img = str(
                             tree.xpath(
                                 '(//picture[contains(@class,"we-artwork--screenshot")]//source/@srcset)[1]'
@@ -355,7 +355,7 @@ class apptoForum:
                     description = tree.xpath(
                         '//div[@class="section__description"]//p/text()'
                     )
-                    desc = "\n\n".join(description)
+                    desc = "\n\n".join(description).encode('ascii', 'ignore').decode('ascii')
                     # dr.get(link)
 
                     # # dr.find_element_by_css_selector(
