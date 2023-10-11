@@ -98,11 +98,12 @@ class apptoForum:
 
     def getAll(self):
 
-        aad = "http://appaddict.net/price-drops"
+        aad = "https://appaddict.net/price-drops"
         isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
         adv = "https://appadvice.com/apps-gone-free"
+        yo = "https://yofreesamples.com/entertainment-freebies/free-apple-app-store-iphone-ipad-apps-today/"
         t1 = threading.Thread(target=self.getAppAddict, args=(aad,))
-        t2 = threading.Thread(target=self.iosSnoops, args=(isn,))
+        t2 = threading.Thread(target=self.getYoApps, args=(yo,))
         t3 = threading.Thread(target=self.appadvice, args=(adv,))
 
         try:
@@ -123,6 +124,28 @@ class apptoForum:
         t3.join()
 
         return self.newApps
+
+    # Get the apps from appaddict
+    def getYoApps(self, url):
+        logging.info('Crawling YoYo')
+        ar = self.scraper.get(url)
+        tree = html.fromstring(ar.text)
+        details = zip(
+                tree.xpath(
+                    '//h4[@class="wp-block-heading"]/a/@href'
+                ),
+                tree.xpath(
+                    '//h4[@class="wp-block-heading"]/following-sibling::p[1]/text()[2]'
+                ),
+            )
+        for link, price in details:
+            id = re.findall(r"\d+", link.split("/")[-1])[0]
+            price = price.replace(' $','')
+            #print(id,price)
+            if id not in self.unique:
+                    self.unique.add(id)
+                    self.newApps.add((int(id), price))
+        #logging.info(f'Found (yoyo): {len(list(details))}')
 
     # Get the apps from appaddict
     def getAppAddict(self, url):
