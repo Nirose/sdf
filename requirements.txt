@@ -1,9 +1,10 @@
+--prefer-binary
 lxml
 requests
 urllib3
 selenium
 psycopg2-binary
 python-amazon-paapi
-webdriver_manager==3.9.0
+webdriver_manager
 cloudscraper
 pyvirtualdisplay

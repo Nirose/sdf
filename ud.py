@@ -11,7 +11,7 @@ import dbc
 import psycopg2
 from psycopg2 import sql as query
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 import concurrent.futures
 import cloudscraper
 
@@ -133,7 +133,7 @@ class Udemy:
             cur.execute(sql)
             for data in cur.fetchall():
                 asin.add(data[0])
-        except:
+        except Exception:
             print('Failed to get data!')
         finally:
             send.close()
@@ -150,7 +150,7 @@ class Udemy:
             cur.execute(sql)
             for data in cur.fetchall():
                 links.add(data[0])
-        except:
+        except Exception:
             print('Failed to get data!')
         finally:
             send.close()
@@ -256,7 +256,7 @@ class Udemy:
             else:
                 logging.info(f'NOT: {url}')
         else:
-            logging.info(f'Already checked! ')
+            logging.info('Already checked! ')
     
     def multiThread(self, threads: int, collection: list, function):
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -393,7 +393,7 @@ class Udemy:
             try:
                 tree = html.fromstring(re.text).xpath(
                     '//div/a[contains(@href,"couponCode")]/@href')
-            except:
+            except Exception:
                 print('Failed:', re.url)
                 logging.error(traceback.format_exc())
             if tree:
@@ -412,7 +412,7 @@ class Udemy:
                 return True
             else:
                 return False
-        except:
+        except Exception:
             return False
 
     def verifyUdemy(self, url):

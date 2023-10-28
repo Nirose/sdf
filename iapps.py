@@ -1,11 +1,11 @@
 import time
 import json
-from multiprocessing.dummy import Pool as ThreadPool
+#from multiprocessing.dummy import Pool as ThreadPool
 import threading
-from datetime import datetime
+#from datetime import datetime
 import re
 from lxml import html
-import requests
+#import requests
 import dbc
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -25,7 +25,7 @@ try:
     USER = os.getenv('A_U')
     PASSWORD = os.getenv('A_P')
     DEPLOYED = int(os.getenv('DEPLOYED'))
-except:
+except Exception:
     from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED
 
 class UniqueViolation(Exception):
@@ -82,13 +82,13 @@ class apptoForum:
 
         time.sleep(2)
         ele = driver.find_element(by=By.CSS_SELECTOR, value=".login .button_submit")
-        driver.execute_script(f"arguments[0].click()", ele)
+        driver.execute_script("arguments[0].click()", ele)
         #
         # Exchange cookies from selenium to requests
         #
-        request_cookies_browser = driver.get_cookies()
-        s = requests.Session()
-        c = [s.cookies.set(c["name"], c["value"]) for c in request_cookies_browser]
+        # request_cookies_browser = driver.get_cookies()
+        # s = requests.Session()
+        # c = [s.cookies.set(c["name"], c["value"]) for c in request_cookies_browser]
 
     def stop(self):
         driver = self.d
@@ -99,7 +99,7 @@ class apptoForum:
     def getAll(self):
 
         aad = "https://appaddict.net/price-drops"
-        isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
+        #isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
         adv = "https://appadvice.com/apps-gone-free"
         yo = "https://yofreesamples.com/entertainment-freebies/free-apple-app-store-iphone-ipad-apps-today/"
         t1 = threading.Thread(target=self.getAppAddict, args=(aad,))
@@ -108,15 +108,15 @@ class apptoForum:
 
         try:
             t1.start()
-        except:
+        except Exception:
             print("Appaddict Failed")
         try:
             t2.start()
-        except:
+        except Exception:
             print("iOSnopes Failed")
         try:
             t3.start()
-        except:
+        except Exception:
             print("Appadvice failed")
 
         t1.join()
@@ -151,7 +151,7 @@ class apptoForum:
     def getAppAddict(self, url):
         logging.info('Crawling App Addict')
         headers = {"Accept-Encoding":"deflate"}
-        ar = self.scraper.get(url)
+        ar = self.scraper.get(url,headers=headers)
         tree = html.fromstring(ar.text)
         details = zip(
             tree.xpath(
@@ -205,7 +205,7 @@ class apptoForum:
     def appadvice(self, url):
         logging.info('Crawling appadvice')
         headers = {"Accept-Encoding":"deflate"}
-        ar = self.scraper.get(url)
+        ar = self.scraper.get(url,headers=headers)
         tree = html.fromstring(ar.text)
         details = zip(
             tree.xpath(
@@ -237,7 +237,7 @@ class apptoForum:
 
         except UniqueViolation:
             raise Exception
-        except Exception as e:
+        except Exception:
             logging.error(traceback.format_exc())
             print("Couldn't Add to DB!")
 
@@ -275,16 +275,16 @@ class apptoForum:
             for data in cur.fetchall():
                 asin.add((data[0], data[1]))
             send.close()
-        except:
+        except Exception:
             "Failed to get data!"
         return asin
 
     def deleteOld(self):
         # delete the ASINS older than 3 days
-        delsql = f"DELETE FROM iapps where added < NOW()-INTERVAL'5 days'"
+        delsql = "DELETE FROM iapps where added < NOW()-INTERVAL'5 days'"
         try:
             self.sendSQL(delsql)
-        except:
+        except Exception:
             print("Could not delete the older records")
 
     # SQL STUFF END
@@ -300,8 +300,8 @@ class apptoForum:
 
         if newlist:
             # convert set to a list
-            newgen = ("https://apps.apple.com/us/app/id" + str(x) for x, y in newlist)
-            final = ",".join(list(newgen))
+            #newgen = ("https://apps.apple.com/us/app/id" + str(x) for x, y in newlist)
+            #final = ",".join(list(newgen))
             logging.info("New: " + str(len(newlist)))
             print("New: " + str(len(newlist)))
         else:
@@ -324,7 +324,7 @@ class apptoForum:
                 print(link)
                 try:
                     self.addtoDB(appid, price)
-                except:
+                except Exception:
                     print("Skipping, Database error Found")
                     continue
                 re = self.scraper.get(link)
@@ -390,7 +390,7 @@ class apptoForum:
                             by=By.CSS_SELECTOR,
                             value="#post_confirm_buttons .button_submit",
                         )
-                    dr.execute_script(f"arguments[0].click()", ele)
+                    dr.execute_script("arguments[0].click()", ele)
                     print("Waiting half minutes...")
                     time.sleep(30)
                     # Add the ID to the db
@@ -401,7 +401,7 @@ class apptoForum:
                     continue
             except KeyboardInterrupt:
                 break
-            except Exception as e:
+            except Exception:
                 logging.error(traceback.format_exc())
                 print("Skipping ", link)
 
@@ -427,7 +427,7 @@ class apptoForum:
             #          "Apps Posting Started", channel="nn")
             try:
                 t.posttoForum(listed)
-            except Exception as e:
+            except Exception:
                 logging.error(traceback.format_exc())
             finally:
                 t.stop()
@@ -462,11 +462,9 @@ if __name__ == "__main__":
 
     if listed:
         t.login()
-        # msg.push('n', 'ct', "Automations",
-        #          "Apps Posting Started", channel="nn")
         try:
             t.posttoForum(listed)
-        except Exception as e:
+        except Exception:
             logging.error(traceback.format_exc())
         finally:
             t.stop()

@@ -2,11 +2,11 @@ import time
 import json
 from multiprocessing.dummy import Pool as ThreadPool
 import threading
-from datetime import datetime
 import re
 from lxml import html
 import requests
 import random
+import psycopg2
 #import cloudscraper
 
 # import pyperclip
@@ -30,7 +30,7 @@ try:
     DEPLOYED = int(os.getenv('DEPLOYED'))   
     USER = os.getenv('K_U')
     PASSWORD = os.getenv('K_P')
-except:
+except Exception:
     from secrets import K_U as USER, K_P as PASSWORD, AMZKEY, AMZSECRET, THROTTLE, DEPLOYED
 
 amazon = AmazonApi(AMZKEY, AMZSECRET, "arnz-20", "US",throttling=int(THROTTLE))
@@ -116,11 +116,12 @@ class booktoForum:
         time.sleep(2)
 
         ele = driver.find_element(by=By.CSS_SELECTOR, value=".login .button_submit")
-        driver.execute_script(f"arguments[0].click()", ele)
+        driver.execute_script("arguments[0].click()", ele)
         time.sleep(2)
-        request_cookies_browser = driver.get_cookies()
-        s = requests.Session()
-        c = [s.cookies.set(c["name"], c["value"]) for c in request_cookies_browser]
+        #Switch cookies
+        # request_cookies_browser = driver.get_cookies()
+        # s = requests.Session()
+        #c = [s.cookies.set(c["name"], c["value"]) for c in request_cookies_browser]
 
     def sendSQL(self, sql):
         send = dbc.connect()
@@ -129,10 +130,10 @@ class booktoForum:
             cur.execute(sql)
             send.commit()
             send.close()
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation:
             print("Duplicate found!")
             send.close()
-        except Exception as e:
+        except Exception:
             #print(sql)
             #logging.error(traceback.format_exc())
             print("Could not execute insert command")
@@ -153,14 +154,14 @@ class booktoForum:
                 asin.add(data[0])
             send.close()
             return asin
-        except:
+        except Exception:
             "Failed to get data!"
 
     def getData(self, query):
         data = set()
         try:
             dbc.cur.execute(query)
-        except:
+        except Exception:
             "Failed to get data!"
         for d in dbc.cur.fetchall():
             data.add(d[0])
@@ -168,10 +169,10 @@ class booktoForum:
 
     def deleteOld(self):
         # delete the ASINS older than 3 days
-        delsql = f"DELETE FROM kindle where added < NOW()-INTERVAL'5 days'"
+        delsql = "DELETE FROM kindle where added < NOW()-INTERVAL'5 days'"
         try:
             self.sendSQL(delsql)
-        except:
+        except Exception:
             print("Could not delete the older ASINs")
 
     # amazon
@@ -196,9 +197,9 @@ class booktoForum:
 
         for elm in search:
             asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
-            link = "https://www.amazon.com" + re.sub(
-                r"\/ref.+", "", str(elm.xpath("@href")[0])
-            )
+            # link = "https://www.amazon.com" + re.sub(
+            #     r"\/ref.+", "", str(elm.xpath("@href")[0])
+            # )
             self.newAsins.add(asin)
             links += 1
         if DEPLOYED:
@@ -214,7 +215,7 @@ class booktoForum:
             amz = html.fromstring(f.text)
             for elm in amz.xpath('//li[@class="link amazon-us"]/a'):
                 asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
-                link = elm.xpath("@href")[0]
+                #link = elm.xpath("@href")[0]
                 #print(asin)
                 self.newAsins.add(asin)
             # sql = f"INSERT INTO kindle(asin,link) VALUES('{asin}','{link}')"
@@ -249,7 +250,7 @@ class booktoForum:
                 self.newAsins.add(asin)
             except IndexError:
                 print("Skipping: ", ar)
-        except Exception as e:
+        except Exception:
             logging.error(traceback.format_exc())
 
     def getHUKD(self, url):
@@ -263,9 +264,9 @@ class booktoForum:
         else:
             print(f"HUKD: {len(links)} found")
         threads = list()  # make a thread list
-        for l in links:
+        for i in links:
             # start the threading with external function parse
-            x = threading.Thread(target=self.hukd, args=(l.split("-")[-1],))
+            x = threading.Thread(target=self.hukd, args=(i.split("-")[-1],))
             threads.append(x)  # count the threads
             x.start()  # start the threads
 
@@ -277,7 +278,7 @@ class booktoForum:
         sql = f"INSERT INTO kindle(asin,link) values {val}"
         try:
             self.sendSQL(sql)
-        except:
+        except Exception:
             print("Couldn't Add to DB!")
 
     def removegetAdd(self):
@@ -302,8 +303,8 @@ class booktoForum:
         newlist = list(self.newAsins.difference(self.oldAsins))
 
         # convert set to a list
-        newgen = ("https://www.amazon.com/dp/" + x for x in newlist)
-        final = ",".join(list(newgen))
+        #newgen = ("https://www.amazon.com/dp/" + x for x in newlist)
+        #final = ",".join(list(newgen))
         # print("New: " + str(final))
 
         # pyperclip.copy(final)
@@ -353,17 +354,17 @@ class booktoForum:
                     if 'All titles below are free to borrow with a Kindle Unlimited subscription' in driver.page_source:
                         continue
                             
-                    if f'id="collection_description"' in driver.page_source:
+                    if 'id="collection_description"' in driver.page_source:
                         print('Collection is found')
                         tree = html.fromstring(driver.page_source)
                         links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
-                        for l in links:
-                            asin = re.findall(r"B[0-9A-Z]{9,9}", l)[0]
+                        for i in links:
+                            asin = re.findall(r"B[0-9A-Z]{9,9}", i)[0]
                             listB.append(asin)
                     else:
                         try:
                             item = amazon.get_items(asin)[0]
-                        except Exception as e:
+                        except Exception:
                             print("Cannot get data from API, using alternative")
                             item = False
                             #print(traceback.format_exc())
@@ -397,7 +398,7 @@ class booktoForum:
                                     ).text
 
                                 )
-                            except:
+                            except Exception:
                                 print("Could not find price element in source code")
                                 price = False
                                 wait = random.randint(60, 120)
@@ -463,7 +464,7 @@ class booktoForum:
                                     ).text
                                     
                                 )
-                            except:
+                            except Exception:
                                 if DEPLOYED:
                                     logging.info(f'Couldnt find original price for {link}')
                                 else:
@@ -531,7 +532,7 @@ class booktoForum:
                                         )
                                     )
                                 )
-                            except:
+                            except Exception:
                                 author = (
                                         driver.find_element(
                                             by=By.CSS_SELECTOR, value="a#bylineContributor"
@@ -626,7 +627,7 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
                                     by=By.CSS_SELECTOR,
                                     value="#post_confirm_buttons .button_submit",
                                 )
-                                driver.execute_script(f"arguments[0].click()", ele)
+                                driver.execute_script("arguments[0].click()", ele)
                             #driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
                             wait = random.randint(10, 60) 
                             print(f"Posted! Waiting {wait} seconds...")
@@ -635,7 +636,7 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
                     # break
                 except KeyboardInterrupt:
                     break
-                except Exception as e:
+                except Exception:
                     logging.error(traceback.format_exc())
                     print("Skipping ", link)
                     
@@ -662,7 +663,7 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
 
             try:
                 task.posttoForum(listed)
-            except Exception as e:
+            except Exception:
                 logging.error(traceback.format_exc())
         else:
             pass               
@@ -690,12 +691,12 @@ if __name__ == "__main__":
     logging.info(f"New found: {len(listed)}")
     print(f"New found {len(listed)}")
     from pyvirtualdisplay import Display
-    with Display(visible=0, size=(1024, 768)) as disp:
+    if not DEPLOYED:
         if len(listed) > 0:
             task.login()
             try:
                 task.posttoForum(listed)
-            except Exception as e:
+            except Exception:
                 logging.error(traceback.format_exc())
             except KeyboardInterrupt:
                 task.stop()
@@ -703,6 +704,20 @@ if __name__ == "__main__":
                 task.stop()
         else:
             pass
+    else:
+        with Display(visible=0, size=(1024, 768)) as disp:
+            if len(listed) > 0:
+                task.login()
+                try:
+                    task.posttoForum(listed)
+                except Exception:
+                    logging.error(traceback.format_exc())
+                except KeyboardInterrupt:
+                    task.stop()
+                finally:
+                    task.stop()
+            else:
+                pass
     
     end = time.time()
     # msg.push('l', 'ct', "Automations", f"Book posting completed in {round((end-start)/60,2)} minutes",

@@ -1,10 +1,9 @@
 import psycopg2
 from urllib.parse import urlparse
-from psycopg2 import pool
 import os
 try:
     from secrets import DB_URL 
-except:
+except Exception:
     DB_URL = os.getenv('DB_URL')
 
 def print_db():
@@ -35,9 +34,9 @@ def connect():
     url = urlparse(dburl)
     try:
         conn = db_connect(url)
-        cur = conn.cursor()
+        #cur = conn.cursor()
         return conn
-    except:
+    except Exception:
         print('Could not connect to the database!')
 
 
