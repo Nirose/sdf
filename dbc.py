@@ -1,5 +1,6 @@
 import psycopg2
 from urllib.parse import urlparse
+from psycopg2 import pool
 import os
 try:
     from secrets import DB_URL 
@@ -44,7 +45,7 @@ def connect_pool():
     dburl = DB_URL
     url = urlparse(dburl)
     try:
-        connection = psycopg2.pool.ThreadedConnectionPool(1, 25,
+        connection = pool.ThreadedConnectionPool(1, 25,
                                                           database=url.path[1:],
                                                           user=url.username,
                                                           password=url.password,
