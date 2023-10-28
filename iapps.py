@@ -98,7 +98,7 @@ class apptoForum:
 
     def getAll(self):
 
-        aad = "https://appaddict.net/price-drops"
+        aad = "http://appaddict.net/price-drops"
         #isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
         adv = "https://appadvice.com/apps-gone-free"
         yo = "https://yofreesamples.com/entertainment-freebies/free-apple-app-store-iphone-ipad-apps-today/"
@@ -150,8 +150,8 @@ class apptoForum:
     # Get the apps from appaddict
     def getAppAddict(self, url):
         logging.info('Crawling App Addict')
-        headers = {"Accept-Encoding":"deflate"}
-        ar = self.scraper.get(url,headers=headers)
+        #headers = {"Accept-Encoding":"deflate"}
+        ar = self.scraper.get(url)
         tree = html.fromstring(ar.text)
         details = zip(
             tree.xpath(
