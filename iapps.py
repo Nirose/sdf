@@ -65,7 +65,7 @@ class apptoForum:
             from webdriver_manager.core.os_manager import ChromeType
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
-            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE,version="118.0.5993.70").install()), options=options)
+            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version="118.0.5993.70").install()), options=options)
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
 
