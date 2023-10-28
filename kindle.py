@@ -94,10 +94,10 @@ class booktoForum:
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/brave-browser"
-            from webdriver_manager.core.utils import ChromeType
+            from webdriver_manager.core.os_manager import ChromeType
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
-            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, version="117.0.5938.62").install()), options=options)
+            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE).install()), options=options)
 
     def stop(self):
         driver = self.d
