@@ -480,7 +480,7 @@ if __name__ == "__main__":
     # ud.writeXML()
     ud.closeSQL()
     end = time.perf_counter()
-    print(len(ud.newcourses), 'course id found in',
+    print(len(ud.newcourses), 'courses id found in',
         round((end-start)/60, 2), 'minutes')
     
     if len(ud.newcourses) > 0:
