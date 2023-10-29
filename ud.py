@@ -272,6 +272,7 @@ class Udemy:
         logging.info('Crawling CS...')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
+            logging.info(f'Using Proxy {USE_PRXY}')
             re = self.scraper.get(curl, proxies= self.proxy) if USE_PRXY else self.scraper.get(curl)
             # with open('source.txt', 'w') as file:
             #     file.write(re.text)
