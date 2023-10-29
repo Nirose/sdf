@@ -1,5 +1,4 @@
 import os
-import requests
 from lxml import html, etree
 import re as regex
 import threading
@@ -60,12 +59,15 @@ class Udemy:
         self.oldlinks = self.getLinks()
         self.tags = set()
         print(DEPLOYED,BOT,CHATID)
+        session = cloudscraper.create_scraper()
         self.scraper = cloudscraper.create_scraper(
             browser={
                 'browser': 'firefox',
                 'platform': 'windows',
                 'mobile': False
-            }
+            },
+            interpreter='nodejs', 
+            sess = session
         )
         self.proxy = {
             'http': PRXY,
@@ -196,7 +198,7 @@ class Udemy:
             coupon = parse_qs(urlparse(url).query)['couponCode'][0]
         except KeyError:
             coupon = ''
-        data = json.loads(requests.get(uurl).text)
+        data = json.loads(self.scraper.get(uurl).text)
         link = 'https://www.udemy.com/course/'+cname+'/?couponCode='+coupon
         desc = self.cleanDesc(data['title'],data['description'],data['image_480x270'],link)
         return {'id': str(data['id']), 'price': (data['price']), 'image': str(data['image_480x270']),'title': str(data['title']),'desc': str(desc),'pub':str(1),'link': str(link), 'coupon': str(coupon)}
@@ -256,7 +258,7 @@ class Udemy:
             else:
                 logging.info(f'NOT: {url}')
         else:
-            logging.info('Already checked! ')
+            logging.info('Coupon already checked! ')
     
     def multiThread(self, threads: int, collection: list, function):
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -270,10 +272,10 @@ class Udemy:
     def cs(self, page: int):
         collection = []
         logging.info('Crawling CS...')
+        logging.info(f'Using Proxy {USE_PRXY}')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
-            logging.info(f'Using Proxy {USE_PRXY}')
-            re = self.scraper.get(curl, proxies= self.proxy) if USE_PRXY else self.scraper.get(curl)
+            re = self.scraper.get(curl, proxies = self.proxy) if USE_PRXY else self.scraper.get(curl)
             # with open('source.txt', 'w') as file:
             #     file.write(re.text)
             # break
@@ -304,7 +306,7 @@ class Udemy:
                 query = f'{UD_CS}/scripts/udemy/out.php?go='+q[0]
                 # print(query)
                 try:
-                    re = requests.get(query, headers=self.headers)
+                    re = self.scraper.get(query, headers=self.headers)
                     self.checkAdd(re.url, source)
 
                 except Exception as e:
@@ -320,9 +322,9 @@ class Udemy:
         logging.info('Crawling DU')
         collection = []
         for p in range(1, page):
-            re = self.scraper.get(UD_DU + str(p))
+            re = self.scraper.get(f'{UD_DU}/all/{str(p)}')
             if DEBUG:
-                logging.info(f'{UD_DU + str(p)}')
+                logging.info(f'{UD_DU}/all/{str(p)}')
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
             for e in tree.xpath("//span[contains(@style,'text-decoration: line-through;color: rgb(33, 186, 69);')]/ancestor::div/div/a[contains(@class,'card-header')]/@href"):
                 collection.append(e)
@@ -333,10 +335,10 @@ class Udemy:
         if source not in self.oldlinks:
             if not DEPLOYED:
                 logging.info(f'Crawling: {source}')
-            re = self.scraper.get("https://www.discudemy.com/go/"+source.split("/")[-1])
+            re = self.scraper.get(f'{UD_DU}/go/{source.split("/")[-1]}')
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
-            url = tree.xpath('//a[contains(@id,"couponLink")]/@href')[0]
-
+            url = tree.xpath('//a[contains(@href,"couponCode=")]/@href')[0]
+            #logging.info(f'Found: {url}')
             self.checkAdd(url,source)
         else:
             logging.info('Link already checked, skipping')
@@ -369,7 +371,7 @@ class Udemy:
 
     def fg(self):
         logging.info('Crawling FG...')
-        re = requests.get(UD_FG)
+        re = self.scraper.get(UD_FG)
         collection = []
         tree = etree.fromstring(bytes(re.text, encoding='utf-8'))
         for e in tree.xpath('//item/link'):
@@ -390,7 +392,7 @@ class Udemy:
         #         print(item)
     def fgq(self, source: str):
         if source not in self.oldlinks:
-            re = requests.get(source)
+            re = self.scraper.get(source)
             try:
                 tree = html.fromstring(re.text).xpath(
                     '//div/a[contains(@href,"couponCode")]/@href')
@@ -425,13 +427,13 @@ class Udemy:
             coupon = ''
         # print(uurl)
         # print(ar.text)  # initial course data
-        data = json.loads(requests.get(uurl).text)
+        data = json.loads(self.scraper.get(uurl).text)
         if 'detail' not in data.keys():
             uuurl = 'https://www.udemy.com/api-2.0/course-landing-components/' + \
                 str(data['id']) + '/me/?couponCode=' + \
                 str(coupon) + '&components=buy_button'
             # print(uuurl) #check for the coupons validity
-            data = json.loads(requests.get(uuurl).text)
+            data = json.loads(self.scraper.get(uuurl).text)
             # print(data)
             return data['buy_button']['button']['is_free_with_discount']
         else:
@@ -467,7 +469,7 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error('FG website has failed',e)
     try:
-        ud.cs(7)
+        ud.cs(5)
     except Exception as e:
         logging.error('CS website has failed',e)
         
@@ -484,7 +486,7 @@ if __name__ == "__main__":
     if len(ud.newcourses) > 0:
         tg = 'https://api.telegram.org/bot' + BOT + '/sendMessage?chat_id=' + CHATID + '&text='
         msg = f"{len(ud.newcourses)} courses found in {round((end-start)/60,2)} minutes"
-        requests.get(tg+msg)
+        ud.scraper.get(tg+msg)
     # if DEPLOYED == 1:
     #     print(f'waiting for: {str(round(INTERVAL/60,2))} minutes')               
     #     time.sleep(INTERVAL)
