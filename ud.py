@@ -272,7 +272,7 @@ class Udemy:
     def cs(self, page: int):
         collection = []
         logging.info('Crawling CS...')
-        logging.info(f'Using Proxy {USE_PRXY}')
+        logging.info(f'Using Proxy: {USE_PRXY}')
         for p in range(1, page+1):
             curl = UD_CS + '/page/' + str(p) + '/'
             re = self.scraper.get(curl, proxies = self.proxy) if USE_PRXY else self.scraper.get(curl)
@@ -284,7 +284,7 @@ class Udemy:
             # for e in tree.xpath('//span[contains(text(),"100% OFF")]/following-sibling::a/@href'):
             for x in tree.xpath('//div[@class="newsdetail newstitleblock rh_gr_right_sec"]/h2/a/@href'):
                 collection.append(x)
-                if not DEPLOYED:
+                if DEBUG:
                     logging.info(x)
         logging.info(f'{len(collection)} links found in CS')
         logging.info("Udemy links from CS tracking links:")
@@ -333,7 +333,7 @@ class Udemy:
     
     def duq(self, source: str):
         if source not in self.oldlinks:
-            if not DEPLOYED:
+            if DEBUG:
                 logging.info(f'Crawling: {source}')
             re = self.scraper.get(f'{UD_DU}/go/{source.split("/")[-1]}')
             tree = html.fromstring(bytes(re.text, encoding='utf-8'))
