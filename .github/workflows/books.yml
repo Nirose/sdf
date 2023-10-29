@@ -15,6 +15,7 @@ env: # Or as an environment variable
       AMZSECRET: ${{ secrets.AMZSECRET}}
       THROTTLE: ${{ secrets.THROTTLE}}
       DEPLOYED: ${{ secrets.DEPLOYED}}
+      DEBUG: ${{ secrets.DEBUG}}
 jobs:
   cron:
     runs-on: ubuntu-latest

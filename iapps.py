@@ -18,15 +18,17 @@ import os
 import psycopg2
 import cloudscraper
 
-logging.basicConfig(filename='iapps.log', filemode='w',
-format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
-
 try:
     USER = os.getenv('A_U')
     PASSWORD = os.getenv('A_P')
     DEPLOYED = int(os.getenv('DEPLOYED'))
+    DEBUG = int(os.environ['DEBUG'])
 except Exception:
-    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED
+    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG
+
+if DEBUG:
+    logging.basicConfig(filename='kindle.log', filemode='w',
+    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 class UniqueViolation(Exception):
     pass

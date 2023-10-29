@@ -20,9 +20,6 @@ import logging
 import os
 from amazon_paapi import AmazonApi
 
-logging.basicConfig(filename='kindle.log', filemode='w',
-format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
-
 try:
     AMZKEY = os.getenv('AMZKEY')
     AMZSECRET = os.getenv('AMZSECRET')
@@ -30,8 +27,13 @@ try:
     DEPLOYED = int(os.getenv('DEPLOYED'))   
     USER = os.getenv('K_U')
     PASSWORD = os.getenv('K_P')
+    DEBUG = int(os.environ['DEBUG'])
 except Exception:
-    from secrets import K_U as USER, K_P as PASSWORD, AMZKEY, AMZSECRET, THROTTLE, DEPLOYED
+    from secrets import K_U as USER, K_P as PASSWORD, AMZKEY, AMZSECRET, THROTTLE, DEPLOYED, DEBUG
+
+if DEBUG:
+    logging.basicConfig(filename='kindle.log', filemode='w',
+    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 amazon = AmazonApi(AMZKEY, AMZSECRET, "arnz-20", "US",throttling=int(THROTTLE))
 # from pushbullet import PB as pb

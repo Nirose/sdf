@@ -12,6 +12,7 @@ env: # Or as an environment variable
       A_U: ${{ secrets.A_U }}
       A_P: ${{ secrets.A_P}}
       DEPLOYED: ${{ secrets.DEPLOYED}}
+      DEBUG: ${{ secrets.DEBUG}}
 jobs:
   cron:
     runs-on: ubuntu-latest
