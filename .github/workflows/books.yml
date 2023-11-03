@@ -16,6 +16,7 @@ env: # Or as an environment variable
       THROTTLE: ${{ secrets.THROTTLE}}
       DEPLOYED: ${{ secrets.DEPLOYED}}
       DEBUG: ${{ secrets.DEBUG}}
+      DRIVER: ${{ secrets.DRIVER}}
 jobs:
   cron:
     runs-on: ubuntu-latest

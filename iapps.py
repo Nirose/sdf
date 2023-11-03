@@ -23,8 +23,9 @@ try:
     PASSWORD = os.getenv('A_P')
     DEPLOYED = int(os.getenv('DEPLOYED'))
     DEBUG = int(os.environ['DEBUG'])
+    DRIVER = os.environ['DRIVER']
 except Exception:
-    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG
+    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG, DRIVER
 
 if DEBUG:
     logging.basicConfig(filename='kindle.log', filemode='w',
@@ -67,7 +68,7 @@ class apptoForum:
             from webdriver_manager.core.os_manager import ChromeType
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
-            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version="118.0.5993.70").install()), options=options)
+            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version=DRIVER).install()), options=options)
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
 

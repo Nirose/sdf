@@ -13,6 +13,7 @@ env: # Or as an environment variable
       A_P: ${{ secrets.A_P}}
       DEPLOYED: ${{ secrets.DEPLOYED}}
       DEBUG: ${{ secrets.DEBUG}}
+      DRIVER: ${{ secrets.DRIVER}}
 jobs:
   cron:
     runs-on: ubuntu-latest

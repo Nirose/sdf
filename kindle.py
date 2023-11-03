@@ -28,8 +28,9 @@ try:
     USER = os.getenv('K_U')
     PASSWORD = os.getenv('K_P')
     DEBUG = int(os.environ['DEBUG'])
+    DRIVER = os.environ['DRIVER']
 except Exception:
-    from secrets import K_U as USER, K_P as PASSWORD, AMZKEY, AMZSECRET, THROTTLE, DEPLOYED, DEBUG
+    from secrets import K_U as USER, K_P as PASSWORD, AMZKEY, AMZSECRET, THROTTLE, DEPLOYED, DEBUG, DRIVER
 
 if DEBUG:
     logging.basicConfig(filename='kindle.log', filemode='w',
@@ -99,7 +100,7 @@ class booktoForum:
             from webdriver_manager.core.os_manager import ChromeType
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
-            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version="118.0.5993.70").install()), options=options)
+            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version=DRIVER).install()), options=options)
 
     def stop(self):
         driver = self.d
