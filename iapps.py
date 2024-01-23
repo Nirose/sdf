@@ -1,11 +1,14 @@
 import time
 import json
-#from multiprocessing.dummy import Pool as ThreadPool
+
+# from multiprocessing.dummy import Pool as ThreadPool
 import threading
-#from datetime import datetime
+
+# from datetime import datetime
 import re
 from lxml import html
-#import requests
+
+# import requests
 import dbc
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -19,17 +22,22 @@ import psycopg2
 import cloudscraper
 
 try:
-    USER = os.getenv('A_U')
-    PASSWORD = os.getenv('A_P')
-    DEPLOYED = int(os.getenv('DEPLOYED'))
-    DEBUG = int(os.environ['DEBUG'])
-    DRIVER = os.environ['DRIVER']
+    USER = os.getenv("A_U")
+    PASSWORD = os.getenv("A_P")
+    DEPLOYED = int(os.getenv("DEPLOYED"))
+    DEBUG = int(os.environ["DEBUG"])
+    DRIVER = os.environ["DRIVER"]
 except Exception:
     from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG, DRIVER
 
 if DEBUG:
-    logging.basicConfig(filename='kindle.log', filemode='w',
-    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logging.basicConfig(
+        filename="apps.log",
+        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
 
 class UniqueViolation(Exception):
     pass
@@ -44,11 +52,7 @@ class apptoForum:
         self.newApps = set()
         self.oldApps = self.getID()
         self.scraper = cloudscraper.create_scraper(
-            browser={
-                'browser': 'firefox',
-                'platform': 'windows',
-                'mobile': False
-            }
+            browser={"browser": "firefox", "platform": "windows", "mobile": False}
         )
 
     def chrome(self):
@@ -68,7 +72,15 @@ class apptoForum:
             from webdriver_manager.core.os_manager import ChromeType
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service as BraveService
-            self.d = webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE, driver_version=DRIVER).install()), options=options)
+
+            self.d = webdriver.Chrome(
+                service=BraveService(
+                    ChromeDriverManager(
+                        chrome_type=ChromeType.BRAVE, driver_version=DRIVER
+                    ).install()
+                ),
+                options=options,
+            )
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
 
@@ -100,9 +112,8 @@ class apptoForum:
     # get all the ids from the sites
 
     def getAll(self):
-
         aad = "http://appaddict.net/price-drops"
-        #isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
+        # isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
         adv = "https://appadvice.com/apps-gone-free"
         yo = "https://yofreesamples.com/entertainment-freebies/free-apple-app-store-iphone-ipad-apps-today/"
         t1 = threading.Thread(target=self.getAppAddict, args=(aad,))
@@ -130,64 +141,65 @@ class apptoForum:
 
     # Get the apps from appaddict
     def getYoApps(self, url):
-        logging.info('Crawling YoYo')
+        logging.info("Crawling YoYo")
         ar = self.scraper.get(url)
         tree = html.fromstring(ar.text)
         details = zip(
-                tree.xpath(
-                    '//h4[@class="wp-block-heading"]/a/@href'
-                ),
-                tree.xpath(
-                    '//h4[@class="wp-block-heading"]/following-sibling::p[1]/text()[2]'
-                ),
-            )
-        for link, price in details:
-            id = re.findall(r"\d+", link.split("/")[-1])[0]
-            price = price.replace(' $','')
-            #print(id,price)
-            if id not in self.unique:
-                    self.unique.add(id)
-                    self.newApps.add((int(id), price))
-        #logging.info(f'Found (yoyo): {len(list(details))}')
-
-    # Get the apps from appaddict
-    def getAppAddict(self, url):
-        logging.info('Crawling App Addict')
-        #headers = {"Accept-Encoding":"deflate"}
-        ar = self.scraper.get(url)
-        tree = html.fromstring(ar.text)
-        details = zip(
+            tree.xpath('//h4[@class="wp-block-heading"]/a/@href'),
             tree.xpath(
-                '//div[@class="td-container td-wrap-content"][1]//strong[@class="price"]//a[1]/@href'
-            ),
-            tree.xpath(
-                '//div[@class="td-container td-wrap-content"][1]//strong[@class="price"]/a/text()'
+                '//h4[@class="wp-block-heading"]/following-sibling::p[1]/text()[2]'
             ),
         )
         for link, price in details:
-            # print(link,price)
             id = re.findall(r"\d+", link.split("/")[-1])[0]
-            price = (
-                "0." + str(re.findall(r"\d+", price[:-8])[0])
-                if ("\u00A2" in price)
-                else re.findall(r"\$([\d.]{2,})", price[:-8])[0]
-            )
-            # test
-            # print(id, price)
+            price = price.replace(" $", "")
+            # print(id,price)
             if id not in self.unique:
                 self.unique.add(id)
                 self.newApps.add((int(id), price))
-        #logging.info(f'Found (appaddict): {len(list(details))}')
+        # logging.info(f'Found (yoyo): {len(list(details))}')
+
+    # Get the apps from appaddict
+    def getAppAddict(self, url):
+        try:
+            logging.info("Crawling App Addict")
+            # headers = {"Accept-Encoding":"deflate"}
+            ar = self.scraper.get(url)
+            tree = html.fromstring(ar.text)
+            details = zip(
+                tree.xpath(
+                    '//div[@class="td-container td-wrap-content"][1]//strong[@class="price"]//a[1]/@href'
+                ),
+                tree.xpath(
+                    '//div[@class="td-container td-wrap-content"][1]//strong[@class="price"]/a/text()'
+                ),
+            )
+            for link, price in details:
+                # print(link,price)
+                id = re.findall(r"\d+", link.split("/")[-1])[0]
+                price = (
+                    "0." + str(re.findall(r"\d+", price[:-8])[0])
+                    if ("\u00A2" in price)
+                    else re.findall(r"\$([\d.]{2,})", price[:-8])[0]
+                )
+                # test
+                # print(id, price)
+                if id not in self.unique:
+                    self.unique.add(id)
+                    self.newApps.add((int(id), price))
+            # logging.info(f'Found (appaddict): {len(list(details))}')
+        except Exception as e:
+            logging.warning(f"An exception occurred in appaddict thread: {e}")
 
     def iosSnoops(self, url):
-        logging.info('Crawling iOSSnoops')
+        logging.info("Crawling iOSSnoops")
         ar = self.scraper.get(url)
         tree = html.fromstring(ar.text)
         details = zip(
             tree.xpath('//div[@class="post"]/h2/a/@href'),
             tree.xpath('//div[@class="post"]//p[@class="nav4"]/a/img/@src'),
         )
-        
+
         for link, price in details:
             # print(link, price)
             id = link.split("/")[-1]
@@ -203,12 +215,12 @@ class apptoForum:
                 self.unique.add(id)
                 self.newApps.add((int(id), price))
 
-        #logging.info(f'Found (iOSSnoops): {len(list(details))}')
+        # logging.info(f'Found (iOSSnoops): {len(list(details))}')
 
     def appadvice(self, url):
-        logging.info('Crawling appadvice')
-        headers = {"Accept-Encoding":"deflate"}
-        ar = self.scraper.get(url,headers=headers)
+        logging.info("Crawling appadvice")
+        headers = {"Accept-Encoding": "deflate"}
+        ar = self.scraper.get(url, headers=headers)
         tree = html.fromstring(ar.text)
         details = zip(
             tree.xpath(
@@ -216,7 +228,7 @@ class apptoForum:
             ),
             tree.xpath("//article//a[1]/span[1]/text()"),
         )
-        
+
         # price = tree.xpath('//article//a[1]/span[1]/text()')
         for link, price in details:
             # print(urlparse(link[0]))
@@ -226,7 +238,8 @@ class apptoForum:
             if id not in self.unique:
                 self.unique.add(id)
                 self.newApps.add((int(id), price))
-        #logging.info(f'Found (appadvice): {len(list(details))}')
+        # logging.info(f'Found (appadvice): {len(list(details))}')
+
     #
     # SQL STUFF
     #
@@ -303,8 +316,8 @@ class apptoForum:
 
         if newlist:
             # convert set to a list
-            #newgen = ("https://apps.apple.com/us/app/id" + str(x) for x, y in newlist)
-            #final = ",".join(list(newgen))
+            # newgen = ("https://apps.apple.com/us/app/id" + str(x) for x, y in newlist)
+            # final = ",".join(list(newgen))
             logging.info("New: " + str(len(newlist)))
             print("New: " + str(len(newlist)))
         else:
@@ -321,7 +334,7 @@ class apptoForum:
         # print(final)
         # print(listB)
         for id, (appid, price) in enumerate(listB):
-            logging.info(f'Posting: https://apps.apple.com/us/app/id{str(appid)}')
+            logging.info(f"Posting: https://apps.apple.com/us/app/id{str(appid)}")
             link = "https://apps.apple.com/us/app/id" + str(appid)
             try:
                 print(link)
@@ -336,13 +349,19 @@ class apptoForum:
                     title = tree.xpath(
                         '//h1[@class="product-header__title app-header__title"]/text()'
                     )[0].strip()
-                    ptitle = "[iOS] " + title.encode('ascii', 'ignore').decode('ascii') + " ($" + price + " to Free)"
+                    ptitle = (
+                        "[iOS] "
+                        + title.encode("ascii", "ignore").decode("ascii")
+                        + " ($"
+                        + price
+                        + " to Free)"
+                    )
                     img = str(
-                            tree.xpath(
-                                '(//picture[contains(@class,"we-artwork--screenshot")]//source/@srcset)[1]'
-                            )
+                        tree.xpath(
+                            '(//picture[contains(@class,"we-artwork--screenshot")]//source/@srcset)[1]'
                         )
-                    #print(img)
+                    )
+                    # print(img)
                     img = img.split(" ")[-2]
                     # img = str(tree.xpath(
                     #     '//div[@class="we-screenshot-viewer__screenshots"]//source[@class="we-artwork__source"][1]/@srcset')).split(' ')[-5].split(",")[1]
@@ -358,7 +377,11 @@ class apptoForum:
                     description = tree.xpath(
                         '//div[@class="section__description"]//p/text()'
                     )
-                    desc = "\n\n".join(description).encode('ascii', 'ignore').decode('ascii')
+                    desc = (
+                        "\n\n".join(description)
+                        .encode("ascii", "ignore")
+                        .decode("ascii")
+                    )
                     # dr.get(link)
 
                     # # dr.find_element_by_css_selector(
@@ -390,9 +413,9 @@ class apptoForum:
                             f"document.getElementsByName('subject')[0].value = {json.dumps(ptitle)};document.getElementsByName('ogimage')[0].value = {json.dumps(img)};document.getElementsByName('description')[0].value = {json.dumps(desc[10:150])};document.getElementsByName('message')[0].innerHTML = {json.dumps(copy)};"
                         )
                     ele = dr.find_element(
-                            by=By.CSS_SELECTOR,
-                            value="#post_confirm_buttons .button_submit",
-                        )
+                        by=By.CSS_SELECTOR,
+                        value="#post_confirm_buttons .button_submit",
+                    )
                     dr.execute_script("arguments[0].click()", ele)
                     print("Waiting half minutes...")
                     time.sleep(30)
@@ -483,7 +506,7 @@ if __name__ == "__main__":
     # print(listed)
 
     if not DEPLOYED:
-        print(f'Completed: {round((end - start)/60,2)} minutes')
-        logging.info(f'It took {round((end - start)/60,2)} minutes')
+        print(f"Completed: {round((end - start)/60,2)} minutes")
+        logging.info(f"It took {round((end - start)/60,2)} minutes")
     else:
-        logging.info(f'It took {round((end - start)/60,2)} minutes')
+        logging.info(f"It took {round((end - start)/60,2)} minutes")
