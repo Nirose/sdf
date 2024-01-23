@@ -2,7 +2,7 @@
 lxml
 requests
 urllib3
-selenium
+selenium==4.16
 psycopg2-binary
 python-amazon-paapi
 webdriver_manager
