@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Setup WARP
-      uses: fscarmen/warp-on-actions@v2
+      uses: fscarmen/warp-on-actions@v1
     - name: Install Brave
       run: |
         sudo apt install curl
