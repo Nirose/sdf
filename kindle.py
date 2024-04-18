@@ -446,7 +446,7 @@ class booktoForum:
                             else:
                                 title = (
                                     driver.find_element(
-                                        by=By.XPATH, value='//span[@id="ebooksTitle"]'
+                                        by=By.XPATH, value='//h1[@id="ebooksTitle"]'
                                     ).text
                                     if (
                                         driver.find_elements(
