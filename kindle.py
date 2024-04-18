@@ -28,7 +28,6 @@ try:
     USER = os.getenv("K_U")
     PASSWORD = os.getenv("K_P")
     DEBUG = int(os.environ["DEBUG"])
-    DRIVER = os.environ["DRIVER"]
     PULL = os.environ["PULL"]
 except Exception:
     from secrets import (
@@ -39,7 +38,6 @@ except Exception:
         THROTTLE,
         DEPLOYED,
         DEBUG,
-        DRIVER,
         PULL,
     )
 
@@ -90,6 +88,10 @@ class booktoForum:
         self.passw = PASSWORD
         self.newAsins = set()
         self.oldAsins = self.getASIN()
+        with requests.get(
+            "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+        ) as f:
+            self.driver = json.loads(f.text)["channels"]["Stable"]["version"]
 
     def chrome(self):
         mobile_emulation = {
@@ -122,7 +124,7 @@ class booktoForum:
             self.d = webdriver.Chrome(
                 service=BraveService(
                     ChromeDriverManager(
-                        chrome_type=ChromeType.BRAVE, driver_version=DRIVER
+                        chrome_type=ChromeType.BRAVE, driver_version=self.driver
                     ).install()
                 ),
                 options=options,

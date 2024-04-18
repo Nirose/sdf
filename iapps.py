@@ -26,9 +26,9 @@ try:
     PASSWORD = os.getenv("A_P")
     DEPLOYED = int(os.getenv("DEPLOYED"))
     DEBUG = int(os.environ["DEBUG"])
-    DRIVER = os.environ["DRIVER"]
+
 except Exception:
-    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG, DRIVER
+    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG
 
 if DEBUG:
     logging.basicConfig(
@@ -54,6 +54,10 @@ class apptoForum:
         self.scraper = cloudscraper.create_scraper(
             browser={"browser": "firefox", "platform": "windows", "mobile": False}
         )
+        with cloudscraper.get(
+            "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+        ) as f:
+            self.driver = json.loads(f.text)["channels"]["Stable"]["version"]
 
     def chrome(self):
         options = Options()
@@ -76,7 +80,7 @@ class apptoForum:
             self.d = webdriver.Chrome(
                 service=BraveService(
                     ChromeDriverManager(
-                        chrome_type=ChromeType.BRAVE, driver_version=DRIVER
+                        chrome_type=ChromeType.BRAVE, driver_version=self.driver
                     ).install()
                 ),
                 options=options,
@@ -179,7 +183,7 @@ class apptoForum:
                 id = re.findall(r"\d+", link.split("/")[-1])[0]
                 price = (
                     "0." + str(re.findall(r"\d+", price[:-8])[0])
-                    if ("\u00A2" in price)
+                    if ("\u00a2" in price)
                     else re.findall(r"\$([\d.]{2,})", price[:-8])[0]
                 )
                 # test
