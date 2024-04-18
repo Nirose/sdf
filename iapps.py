@@ -19,6 +19,7 @@ import logging
 from urllib.parse import urlparse
 import os
 import psycopg2
+import requests
 import cloudscraper
 
 try:
@@ -54,7 +55,7 @@ class apptoForum:
         self.scraper = cloudscraper.create_scraper(
             browser={"browser": "firefox", "platform": "windows", "mobile": False}
         )
-        with cloudscraper.get(
+        with requests.get(
             "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
         ) as f:
             self.driver = json.loads(f.text)["channels"]["Stable"]["version"]
