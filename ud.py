@@ -325,12 +325,15 @@ class Udemy:
 
     def checkAdd(self, url: str, source: str):
         if self.unique(url):
-            if self.verifyUdemy(url):
-                if not DEPLOYED:
-                    logging.info(f"FREE: {url}")
-                self.addNew(url, source)
-            else:
-                logging.info(f"NOT: {url}")
+            try:
+                if self.verifyUdemy(url):
+                    if not DEPLOYED:
+                        logging.info(f"FREE: {url}")
+                    self.addNew(url, source)
+                else:
+                    logging.info(f"NOT: {url}")
+            except Exception as e:
+                logging.error("Exception logged", e)
         else:
             logging.info("Coupon already checked! ")
 
@@ -514,7 +517,11 @@ class Udemy:
             coupon = ""
         # print(uurl)
         try:
-            data = json.loads(self.scraper.get(uurl).text)
+            data = (
+                json.loads(self.scraper.get(uurl).text, proxies=self.proxy)
+                if USE_PRXY
+                else json.loads(self.scraper.get(uurl).text)
+            )
             if "detail" not in data.keys():
                 uuurl = (
                     "https://www.udemy.com/api-2.0/course-landing-components/"
@@ -524,7 +531,11 @@ class Udemy:
                     + "&components=buy_button"
                 )
                 logging.info(uuurl)  # check for the coupons validity
-                data = json.loads(self.scraper.get(uuurl).text)
+                data = (
+                    json.loads(self.scraper.get(uuurl).text, proxies=self.proxy)
+                    if USE_PRXY
+                    else json.loads(self.scraper.get(uuurl).text)
+                )
                 logging.info(data)
                 return data["buy_button"]["button"]["is_free_with_discount"]
             else:
