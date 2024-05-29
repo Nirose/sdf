@@ -513,7 +513,6 @@ class Udemy:
         except KeyError:
             coupon = ""
         # print(uurl)
-        # print(ar.text)  # initial course data
         try:
             data = json.loads(self.scraper.get(uurl).text)
             if "detail" not in data.keys():
@@ -524,9 +523,9 @@ class Udemy:
                     + str(coupon)
                     + "&components=buy_button"
                 )
-                # print(uuurl) #check for the coupons validity
+                logging.info(uuurl)  # check for the coupons validity
                 data = json.loads(self.scraper.get(uuurl).text)
-                # print(data)
+                logging.info(data)
                 return data["buy_button"]["button"]["is_free_with_discount"]
             else:
                 return False
