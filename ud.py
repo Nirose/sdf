@@ -515,7 +515,7 @@ class Udemy:
             coupon = parse_qs(urlparse(url).query)["couponCode"][0]
         except KeyError:
             coupon = ""
-        # print(uurl)
+        logging.info("U1: ", uurl)
         try:
             data = (
                 json.loads(self.scraper.get(uurl).text, proxies=self.proxy)
