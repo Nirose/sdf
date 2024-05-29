@@ -514,21 +514,24 @@ class Udemy:
             coupon = ""
         # print(uurl)
         # print(ar.text)  # initial course data
-        data = json.loads(self.scraper.get(uurl).text)
-        if "detail" not in data.keys():
-            uuurl = (
-                "https://www.udemy.com/api-2.0/course-landing-components/"
-                + str(data["id"])
-                + "/me/?couponCode="
-                + str(coupon)
-                + "&components=buy_button"
-            )
-            # print(uuurl) #check for the coupons validity
-            data = json.loads(self.scraper.get(uuurl).text)
-            # print(data)
-            return data["buy_button"]["button"]["is_free_with_discount"]
-        else:
-            return False
+        try:
+            data = json.loads(self.scraper.get(uurl).text)
+            if "detail" not in data.keys():
+                uuurl = (
+                    "https://www.udemy.com/api-2.0/course-landing-components/"
+                    + str(data["id"])
+                    + "/me/?couponCode="
+                    + str(coupon)
+                    + "&components=buy_button"
+                )
+                # print(uuurl) #check for the coupons validity
+                data = json.loads(self.scraper.get(uuurl).text)
+                # print(data)
+                return data["buy_button"]["button"]["is_free_with_discount"]
+            else:
+                return False
+        except Exception as e:
+            logging.error("Exception occured while trying to verify", e)
 
     def manageID(self):
         # self.deleteOld()
