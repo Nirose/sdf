@@ -515,13 +515,15 @@ class Udemy:
             coupon = parse_qs(urlparse(url).query)["couponCode"][0]
         except KeyError:
             coupon = ""
-        logging.info(uurl)
+        # logging.info(uurl)
         try:
-            data = (
-                json.loads(self.scraper.get(uurl, proxies=self.proxy).text)
+            response = (
+                self.scraper.get(uurl, proxies=self.proxy).text
                 if USE_PRXY
-                else json.loads(self.scraper.get(uurl).text)
+                else self.scraper.get(uurl).text
             )
+            logging.info("First Response: )", response)
+            data = json.loads(response)
             if "detail" not in data.keys():
                 uuurl = (
                     "https://www.udemy.com/api-2.0/course-landing-components/"
@@ -531,11 +533,13 @@ class Udemy:
                     + "&components=buy_button"
                 )
                 logging.info(uuurl)  # check for the coupons validity
-                data = (
-                    json.loads(self.scraper.get(uuurl, proxies=self.proxy).text)
+                response = (
+                    self.scraper.get(uuurl, proxies=self.proxy).text
                     if USE_PRXY
-                    else json.loads(self.scraper.get(uuurl).text)
+                    else self.scraper.get(uuurl).text
                 )
+                logging.info("Second Response: )", response)
+                data = json.loads(response)
                 logging.info(data)
                 return data["buy_button"]["button"]["is_free_with_discount"]
             else:
