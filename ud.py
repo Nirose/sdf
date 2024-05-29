@@ -554,10 +554,10 @@ if __name__ == "__main__":
         ud.iv()
     except Exception as e:
         logging.error("IH website has failed", e)
-    try:
-        ud.fg()
-    except Exception as e:
-        logging.error("FG website has failed", e)
+    # try:
+    #     ud.fg()
+    # except Exception as e:
+    #     logging.error("FG website has failed", e)
     try:
         ud.cs(5)
     except Exception as e:
