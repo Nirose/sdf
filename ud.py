@@ -528,6 +528,7 @@ class Udemy:
                 logging.info(data)
                 return data["buy_button"]["button"]["is_free_with_discount"]
             else:
+                logging.info(data)
                 return False
         except Exception as e:
             logging.error("Exception occured while trying to verify", e)
