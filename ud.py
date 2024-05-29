@@ -518,7 +518,7 @@ class Udemy:
         logging.info("U1: ", uurl)
         try:
             data = (
-                json.loads(self.scraper.get(uurl).text, proxies=self.proxy)
+                json.loads(self.scraper.get(uurl, proxies=self.proxy).text)
                 if USE_PRXY
                 else json.loads(self.scraper.get(uurl).text)
             )
@@ -532,7 +532,7 @@ class Udemy:
                 )
                 logging.info(uuurl)  # check for the coupons validity
                 data = (
-                    json.loads(self.scraper.get(uuurl).text, proxies=self.proxy)
+                    json.loads(self.scraper.get(uuurl, proxies=self.proxy).text)
                     if USE_PRXY
                     else json.loads(self.scraper.get(uuurl).text)
                 )
