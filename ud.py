@@ -400,7 +400,7 @@ class Udemy:
             except IndexError:
                 logging.info(f"IndexError Failure:{re.url}")
         else:
-            logging.info("Link already checked, skipping")
+            logging.info("CS link already checked, skipping")
 
     def du(self, page: int):
         logging.info("Crawling DU")
@@ -424,10 +424,10 @@ class Udemy:
             re = self.scraper.get(f'{UD_DU}/go/{source.split("/")[-1]}')
             tree = html.fromstring(bytes(re.text, encoding="utf-8"))
             url = tree.xpath('//a[contains(@href,"couponCode=")]/@href')[0]
-            # logging.info(f'Found: {url}')
+            logging.info(f"Found: {url}")
             self.checkAdd(url, source)
         else:
-            logging.info("Link already checked, skipping")
+            logging.info("DU link already checked, skipping")
 
     def iv(self):
         logging.info("Crawling IH")
@@ -452,7 +452,7 @@ class Udemy:
                 logging.info(f"Checking: {url}")
             self.checkAdd(url, source)
         else:
-            logging.info("Link already checked, skipping")
+            logging.info("IV link already checked, skipping")
 
     def fg(self):
         logging.info("Crawling FG...")
@@ -489,7 +489,7 @@ class Udemy:
                 url = tree[0]
                 self.checkAdd(url, source)
         else:
-            logging.info("Link already checked, skipping")
+            logging.info("FG link already checked, skipping")
 
     def unique(self, url: str):
         tag = urlparse(url).path.split("/")[2]
