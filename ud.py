@@ -522,7 +522,7 @@ class Udemy:
                 if USE_PRXY
                 else self.scraper.get(uurl).text
             )
-            logging.info("First Response: )", response)
+            logging.info(f"First Response: {response}")
             data = json.loads(response)
             if "detail" not in data.keys():
                 uuurl = (
@@ -538,7 +538,7 @@ class Udemy:
                     if USE_PRXY
                     else self.scraper.get(uuurl).text
                 )
-                logging.info("Second Response: )", response)
+                logging.info(f"Second Response: {response}")
                 data = json.loads(response)
                 logging.info(data)
                 return data["buy_button"]["button"]["is_free_with_discount"]
