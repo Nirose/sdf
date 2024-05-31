@@ -539,14 +539,21 @@ class Udemy:
                     else self.scraper.get(uuurl).text
                 )
                 logging.info(f"Second Response: {response}")
-                data = json.loads(response)
-                logging.info(data)
-                return data["buy_button"]["button"]["is_free_with_discount"]
+                try:
+                    data = json.loads(response)
+                    logging.info(data)
+                    return data["buy_button"]["button"]["is_free_with_discount"]
+                except Exception as e:
+                    logging.error(
+                        f"Response is not formatted: {response}, Exception: {e}"
+                    )
+                    return False
+
             else:
                 logging.info(data)
                 return False
         except Exception as e:
-            logging.error("Exception occured while trying to verify", e)
+            logging.error(f"Exception occured while trying to verify {e}")
 
     def manageID(self):
         # self.deleteOld()
