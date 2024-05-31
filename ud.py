@@ -571,22 +571,24 @@ if __name__ == "__main__":
     # print(ud.oldcourses)
     # print(ud.rsscourses)
 
-    try:
-        ud.du(5)
-    except Exception as e:
-        logging.error("DU website has failed", e)
-    try:
-        ud.iv()
-    except Exception as e:
-        logging.error("IH website has failed", e)
-    # try:
-    #     ud.fg()
-    # except Exception as e:
-    #     logging.error("FG website has failed", e)
-    try:
-        ud.cs(5)
-    except Exception as e:
-        logging.error("CS website has failed", e)
+    if DEPLOYED:
+        try:
+            ud.du(5)
+        except Exception as e:
+            logging.error("DU website has failed", e)
+        try:
+            ud.iv()
+        except Exception as e:
+            logging.error("IH website has failed", e)
+        # try:
+        #     ud.fg()
+        # except Exception as e:
+        #     logging.error("FG website has failed", e)
+    else:
+        try:
+            ud.cs(5)
+        except Exception as e:
+            logging.error("CS website has failed", e)
 
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
