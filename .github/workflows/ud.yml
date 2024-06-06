@@ -21,6 +21,7 @@ env: # Or as an environment variable
       PRXY: ${{ secrets.PRXY }}
       USE_PRXY: ${{ secrets.USE_PRXY }}
       THREADS: ${{ secrets.THREADS }}
+      HIDE: ${{ secrets.HIDE }}
 jobs:
   cron:
     runs-on: ubuntu-latest

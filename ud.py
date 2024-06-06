@@ -32,6 +32,7 @@ try:
     PRXY = os.environ["PRXY"]
     USE_PRXY = int(os.environ["USE_PRXY"])
     THREADS = int(os.environ["THREADS"])
+    HIDE = int(os.environ["HIDE"])
 except KeyError:
     INTERVAL = 3600
     BOT = ""
@@ -47,6 +48,7 @@ except KeyError:
         USE_PRXY,
         THREADS,
         UD_AF,
+        HIDE,
     )
 
 if DEBUG:
@@ -207,7 +209,18 @@ class Udemy:
             clean.append(b)
         desc = "\n\n".join(clean)
 
-        cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\n\n[hide][url={UD_AF}{quote(link)}][img alt=Enroll button]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url][/hide]\n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your goals. Thanks for your support![/sub]"
+        hide_string = "[hide]" if HIDE else ""
+        hide_end_string = "[/hide]" if HIDE else ""
+
+        cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\
+        \n\n\
+        {hide_string}\
+        [url={UD_AF}{quote(link)}]\
+        [img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url]\
+        [url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons]\
+        [img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
+        {hide_end_string}\
+        \n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your goals. Thanks for your support![/sub]"
         return cdesc
 
     def getUdeId(self, url: str):
