@@ -215,12 +215,10 @@ class Udemy:
         cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\
         \n\n\
         {hide_string}\
-        [url={UD_AF}{quote(link)}]\
-        [img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url]\
-        [url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons]\
-        [img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
+        [url={UD_AF}{quote(link)}][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
         {hide_end_string}\
         \n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your goals. Thanks for your support![/sub]"
+
         return cdesc
 
     def getUdeId(self, url: str):
