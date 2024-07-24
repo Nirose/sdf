@@ -73,19 +73,9 @@ class apptoForum:
             s = Service(executable_path=os.getenv("CHROMEDRIVER"))
             self.d = webdriver.Chrome(service=s, options=options)
         else:
-            options.binary_location = "/usr/bin/brave-browser"
-            from webdriver_manager.core.os_manager import ChromeType
-            from webdriver_manager.chrome import ChromeDriverManager
-            from selenium.webdriver.chrome.service import Service as BraveService
-
-            self.d = webdriver.Chrome(
-                service=BraveService(
-                    ChromeDriverManager(
-                        chrome_type=ChromeType.BRAVE, driver_version=self.driver
-                    ).install()
-                ),
-                options=options,
-            )
+            options.binary_location = "/usr/bin/chromium-browser"
+            s = Service(executable_path=os.getenv("CHROMEWEBDRIVER"))
+            self.d = webdriver.Chrome(service=s, options=options)
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
 
