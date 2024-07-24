@@ -117,7 +117,7 @@ class booktoForum:
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/chromium-browser"
-            s = Service(executable_path=os.getenv("CHROMEWEBDRIVER"))
+            s = Service(executable_path=os.getenv("CHROMEWEBDRIVER/chromedriver"))
             self.d = webdriver.Chrome(service=s, options=options)
         self.d.implicitly_wait(2)
         print("Chrome Browser Invoked")
