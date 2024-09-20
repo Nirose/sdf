@@ -321,7 +321,7 @@ class booktoForum:
         t3.join()
 
         # print(self.oldAsins)
-        # print(self.newAsins)
+        print(self.newAsins)
         newlist = list(self.newAsins.difference(self.oldAsins))
 
         # convert set to a list
@@ -543,7 +543,7 @@ class booktoForum:
                                     )
                                     else driver.find_element(
                                         by=By.CSS_SELECTOR,
-                                        value="#mainImageContainer img",
+                                        value="#landing-image-wrapper img",
                                     ).get_attribute("src")
                                 )
                             try:
