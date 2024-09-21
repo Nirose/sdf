@@ -3,11 +3,11 @@ import json
 from multiprocessing.dummy import Pool as ThreadPool
 import threading
 import re
-from lxml import html
+from lxml import html, etree
 import requests
 import random
 import psycopg2
-# import cloudscraper
+import cloudscraper
 
 # import pyperclip
 import dbc
@@ -72,17 +72,13 @@ class booktoForum:
     def __init__(self):
         # AWS location r"C:\Users\Administrator\Desktop\J\Chrome\bin\chrome.exe"
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6729.1 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Accept-Language": "en-US,en;q=0.9",
         }
-        # self.scraper = cloudscraper.create_scraper(
-        #     browser={
-        #         'browser': 'firefox',
-        #         'platform': 'windows',
-        #         'mobile': False
-        #     }
-        # )
+        self.scraper = cloudscraper.create_scraper(
+            browser={"browser": "firefox", "platform": "windows", "mobile": False}
+        )
 
         self.user = USER
         self.passw = PASSWORD
@@ -201,12 +197,12 @@ class booktoForum:
     # amazon
 
     def amazon(self, url):
-        ar = requests.get(url, headers=self.headers)
+        ar = self.scraper.get(url)
 
         # Test the source
-        if not DEPLOYED:
-            with open("debug/amazon.html", "w", encoding="utf-8") as file:
-                file.write(str(ar.content))
+        if DEBUG and not DEPLOYED:
+            with open("debug/amazon.html", "w", encoding="utf-8") as f:
+                f.write(str(ar.content))
 
         tree = html.fromstring(str(ar.content))
         links = 0
@@ -249,8 +245,9 @@ class booktoForum:
         # pass
         br = requests.get(url, headers=self.headers)
         # Test the source
-        # with open('file.txt', 'w') as file:
-        #     file.write(br.text)
+        if DEBUG and not DEPLOYED:
+            with open("debug/bookzio.html", "w", encoding="utf-8") as f:
+                f.write(br.text)
 
         tree = html.fromstring(br.text)
         links = tree.xpath('//h2[@class="entry-title"]/a/@href')
@@ -265,10 +262,11 @@ class booktoForum:
     def hukd(self, id):
         url = str("https://www.hotukdeals.com/visit/thread/" + id)
         try:
-            ar = requests.get(url, headers=self.headers).url
+            ar = self.scraper.get(url).url
             try:
                 asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
-                # print(ar, asin)
+                if DEBUG:
+                    print(ar, asin)
                 self.newAsins.add(asin)
             except IndexError:
                 print("Skipping: ", ar)
@@ -276,11 +274,42 @@ class booktoForum:
             logging.error(traceback.format_exc())
 
     def getHUKD(self, url):
-        hr = requests.get(url)
-        tree = html.fromstring(hr.text)
-        links = tree.xpath(
-            '//a[contains(@class,"thread-title--list")][contains(@title,"kindle")]/@href|//a[contains(@class,"thread-title--list")][contains(@title,"Kindle")]/@href'
-        )
+        hr = self.scraper.get(url)
+        if DEBUG and not DEPLOYED:
+            with open("debug/hukd.html", "w", encoding="utf-8") as f:
+                f.write(hr.text)
+        # Using regex
+        # matches = re.findall(
+        #     r"(?<=amazon.co.uk\/dp\/).+?(?=\#customerReviews)", hr.text
+        # )
+
+        # if DEPLOYED:
+        #     logging.info(f"HUKD: {len(matches)} found")
+        # else:
+        #     print(f"HUKD: {len(matches)} found")
+
+        # for m in matches:
+        #     try:
+        #         # print(ar, asin)
+        #         self.newAsins.add(m)
+        #     except IndexError:
+        #         print("Skipping: ", m)
+
+        root = etree.fromstring(hr.text.encode("utf-8"))
+
+        links = []
+        for item in root.findall(".//item"):
+            title = item.find("title").text
+            if (
+                "kindle" in title.lower()
+            ):  # Check if "kindle" is in the title (case insensitive)
+                link = item.find("link").text
+                links.append(link)
+        # Using HTML (old)
+        # tree = html.fromstring(hr.text)
+        # links = tree.xpath(
+        #     '//a[contains(@class,"thread-title--list")][contains(@title,"kindle")]/@href|//a[contains(@class,"thread-title--list")][contains(@title,"Kindle")]/@href'
+        # )
         if DEPLOYED:
             logging.info(f"HUKD: {len(links)} found")
         else:
@@ -307,7 +336,7 @@ class booktoForum:
         self.deleteOld()
         amz = f"{PULL}https://www.amazon.com/Best-Sellers-Kindle-Store/zgbs/digital-text/?tf=1"
         burl = "https://www.bookzio.com/daily-deals-bargain-books/"
-        hurl = "https://www.hotukdeals.com/tag/freebies"
+        hurl = "https://www.hotukdeals.com/rss/tag/freebies"
         # open('books.txt', 'w').close()
 
         t1 = threading.Thread(target=self.amazon, args=(amz,))
@@ -321,7 +350,7 @@ class booktoForum:
         t3.join()
 
         # print(self.oldAsins)
-        print(self.newAsins)
+        # print(self.newAsins)
         newlist = list(self.newAsins.difference(self.oldAsins))
 
         # convert set to a list
@@ -700,36 +729,38 @@ if __name__ == "__main__":
 
     # TASK DONE HERE
     logging.info(f"New found: {len(listed)}")
-    print(f"New found {len(listed)}")
-    from pyvirtualdisplay import Display
+    if DEBUG:
+        print(f"New found {len(listed)}")
 
-    if not DEPLOYED:
-        if len(listed) > 0:
-            task.login()
-            try:
-                task.posttoForum(listed)
-            except Exception:
-                logging.error(traceback.format_exc())
-            except KeyboardInterrupt:
-                task.stop()
-            finally:
-                task.stop()
-        else:
-            pass
-    else:
-        with Display(visible=0, size=(1024, 768)) as disp:
-            if len(listed) > 0:
-                task.login()
-                try:
-                    task.posttoForum(listed)
-                except Exception:
-                    logging.error(traceback.format_exc())
-                except KeyboardInterrupt:
-                    task.stop()
-                finally:
-                    task.stop()
-            else:
-                pass
+    # from pyvirtualdisplay import Display
+
+    # if not DEPLOYED:
+    #     if len(listed) > 0:
+    #         task.login()
+    #         try:
+    #             task.posttoForum(listed)
+    #         except Exception:
+    #             logging.error(traceback.format_exc())
+    #         except KeyboardInterrupt:
+    #             task.stop()
+    #         finally:
+    #             task.stop()
+    #     else:
+    #         pass
+    # else:
+    #     with Display(visible=0, size=(1024, 768)) as disp:
+    #         if len(listed) > 0:
+    #             task.login()
+    #             try:
+    #                 task.posttoForum(listed)
+    #             except Exception:
+    #                 logging.error(traceback.format_exc())
+    #             except KeyboardInterrupt:
+    #                 task.stop()
+    #             finally:
+    #                 task.stop()
+    #         else:
+    #             pass
 
     end = time.time()
     # msg.push('l', 'ct', "Automations", f"Book posting completed in {round((end-start)/60,2)} minutes",
