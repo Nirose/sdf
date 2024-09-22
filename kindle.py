@@ -732,35 +732,35 @@ if __name__ == "__main__":
     if DEBUG:
         print(f"New found {len(listed)}")
 
-    # from pyvirtualdisplay import Display
+    from pyvirtualdisplay import Display
 
-    # if not DEPLOYED:
-    #     if len(listed) > 0:
-    #         task.login()
-    #         try:
-    #             task.posttoForum(listed)
-    #         except Exception:
-    #             logging.error(traceback.format_exc())
-    #         except KeyboardInterrupt:
-    #             task.stop()
-    #         finally:
-    #             task.stop()
-    #     else:
-    #         pass
-    # else:
-    #     with Display(visible=0, size=(1024, 768)) as disp:
-    #         if len(listed) > 0:
-    #             task.login()
-    #             try:
-    #                 task.posttoForum(listed)
-    #             except Exception:
-    #                 logging.error(traceback.format_exc())
-    #             except KeyboardInterrupt:
-    #                 task.stop()
-    #             finally:
-    #                 task.stop()
-    #         else:
-    #             pass
+    if not DEPLOYED:
+        if len(listed) > 0:
+            task.login()
+            try:
+                task.posttoForum(listed)
+            except Exception:
+                logging.error(traceback.format_exc())
+            except KeyboardInterrupt:
+                task.stop()
+            finally:
+                task.stop()
+        else:
+            pass
+    else:
+        with Display(visible=0, size=(1024, 768)) as disp:
+            if len(listed) > 0:
+                task.login()
+                try:
+                    task.posttoForum(listed)
+                except Exception:
+                    logging.error(traceback.format_exc())
+                except KeyboardInterrupt:
+                    task.stop()
+                finally:
+                    task.stop()
+            else:
+                pass
 
     end = time.time()
     # msg.push('l', 'ct', "Automations", f"Book posting completed in {round((end-start)/60,2)} minutes",
