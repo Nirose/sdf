@@ -38,10 +38,10 @@ jobs:
         python -m pip install --upgrade pip uv
         if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
     - name: Setup WARP
-      uses: fscarmen/warp-on-actions@v1.2
+      uses: fscarmen/warp-on-actions@v1.3
     - name: execute py script # run main.py
       run: python ud.py
-      
+
     # - name: commit files
     #   run: |
     #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
