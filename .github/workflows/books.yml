@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Install Virtual Server
       run: |
-        sudo apt-get install xvfb xserver-xephyr tigervnc-standalone-server x11-utils
+        sudo apt-get install x11-utils gnumeric
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
