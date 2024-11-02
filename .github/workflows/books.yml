@@ -27,7 +27,7 @@ jobs:
       uses: fscarmen/warp-on-actions@v1.3
     - name: Install Virtual Server
       run: |
-        sudo apt-get install x11-utils gnumeric
+        sudo apt-get install x11-utils
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
