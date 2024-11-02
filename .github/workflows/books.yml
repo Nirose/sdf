@@ -23,6 +23,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Setup WARP
+      uses: fscarmen/warp-on-actions@v1.3
     - name: Install Virtual Server
       run: |
         sudo apt-get install x11-utils gnumeric
@@ -34,8 +36,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip uv
         if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
-    - name: Setup WARP
-      uses: fscarmen/warp-on-actions@v1.3
     - name: execute py script # run main.py
       run: python kindle.py
     
