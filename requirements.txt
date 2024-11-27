@@ -2,7 +2,8 @@ lxml
 requests
 urllib3
 selenium
-psycopg2-binary
+psycopg
+psycopg[pool]
 python-amazon-paapi
 cloudscraper
 pyvirtualdisplay

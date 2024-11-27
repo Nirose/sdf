@@ -18,7 +18,8 @@ import traceback
 import logging
 from urllib.parse import urlparse
 import os
-import psycopg2
+import psycopg
+from psycopg import sql as query
 import requests
 import cloudscraper
 
@@ -47,6 +48,7 @@ class UniqueViolation(Exception):
 class apptoForum:
     def __init__(self):
         # self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
+        self.conn = dbc.connect_pool()
         self.user = USER
         self.passw = PASSWORD
         self.unique = set()
@@ -70,6 +72,7 @@ class apptoForum:
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=0")
         if not DEPLOYED:
+            options.binary_location = os.getenv("CHROME")
             s = Service(executable_path=os.getenv("CHROMEDRIVER"))
             self.d = webdriver.Chrome(service=s, options=options)
         else:
@@ -253,24 +256,30 @@ class apptoForum:
             print("Couldn't Add to DB!")
 
     # endpoint to send SQL
-    def sendSQL(self, sql):
-        send = dbc.connect()
-        cur = send.cursor()
+    def sendSQL(self, sql: str, val=None):
         try:
-            cur.execute(sql)
-            send.commit()
-        except psycopg2.errors.UniqueViolation:
-            raise UniqueViolation
-            print("Duplicate Error!")
-        except psycopg2.DatabaseError as e:
-            print(sql)
-            logging.error(traceback.format_exc())
-            print("Could not execute insert command", e.pgcode)
-            raise Exception
+            # send = self.conn.getconn()
+            with self.conn.getconn() as send, send.cursor() as cur:
+                try:
+                    if val:
+                        cur.execute(
+                            query.SQL(sql).format(query.Identifier("udemy")), val
+                        )
+                    else:
+                        cur.execute(sql)
+                        send.commit()
+                except psycopg.errors.UniqueViolation:
+                    print("Duplicate Error!")
+                    raise UniqueViolation
+                except psycopg.DatabaseError as e:
+                    print(sql)
+                    logging.error(traceback.format_exc())
+                    print("Could not execute command", e.pgcode)
+                    raise Exception
+                finally:
+                    cur.close()
         finally:
-            if send is not None:
-                cur.close()
-                send.close()
+            self.conn.putconn(send)
 
     def closeSQL(self):
         self.send.close()

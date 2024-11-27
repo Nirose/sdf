@@ -7,8 +7,8 @@ import json
 import traceback
 import logging
 import dbc
-import psycopg2
-from psycopg2 import sql as query
+import psycopg
+from psycopg import sql as query
 import time
 from datetime import datetime
 import concurrent.futures
@@ -112,25 +112,18 @@ class Udemy:
         try:
             # send = self.conn.getconn()
             with self.conn.getconn() as send, send.cursor() as cur:
-                # try:
-                #     cur = send.cursor()
-
-                # except Exception as e:
-                #     print('Exception: ', e)
                 try:
                     if val:
-                        # sqlr = query.SQL(sql).format(query.Identifier('data'))
-                        # print(sqlr.as_string(send))
                         cur.execute(
                             query.SQL(sql).format(query.Identifier("udemy")), val
                         )
                     else:
                         cur.execute(sql)
                         send.commit()
-                except psycopg2.errors.UniqueViolation:
+                except psycopg.errors.UniqueViolation:
                     print("Duplicate Error!")
                     raise UniqueViolation
-                except psycopg2.DatabaseError as e:
+                except psycopg.DatabaseError as e:
                     print(sql)
                     logging.error(traceback.format_exc())
                     print("Could not execute command", e.pgcode)
@@ -142,7 +135,7 @@ class Udemy:
 
     def closeSQL(self):
         if self.conn is not None:
-            self.conn.closeall()
+            self.conn.close()
 
     def getID(self):
         asin = set()
@@ -448,26 +441,22 @@ class Udemy:
 
     def iv(self):
         logging.info("Crawling IH")
-        re = self.scraper.get(f"{UD_IH}/course")
+        re = self.scraper.get(f"{UD_IH}/fetchdata?filter=latest")
+        # logging.info(re.text)
         collection = []
         tree = html.fromstring(bytes(re.text, encoding="utf-8"))
-        for e in tree.xpath('//a[contains(@class,"btndarkgrid")]/@href'):
-            collection.append(f"{UD_IH}/{e}")
+        for e in tree.xpath('//a[contains(text(),"Enroll Now")]/@href'):
+            url = e.split("murl=")[1]
+            collection.append(f"{url}")
         logging.info(f"IH Links found: {len(collection)}")
 
         self.multiThread(self.threads, collection, self.ivq)
 
     def ivq(self, source: str):
         if source not in self.oldlinks:
-            re = self.scraper.get(source)
             if not DEPLOYED:
                 logging.info(f"Crawling: {source}")
-            tree = html.fromstring(bytes(re.text, encoding="utf-8"))
-            link = tree.xpath("(//a[contains(@id,'couponval')])[1]/@href")
-            url = link[0].split("murl=")[1]
-            if not DEPLOYED:
-                logging.info(f"Checking: {url}")
-            self.checkAdd(url, source)
+            self.checkAdd(source, source)
         else:
             logging.info("IV link already checked, skipping")
 
@@ -536,7 +525,8 @@ class Udemy:
                 if USE_PRXY
                 else self.scraper.get(uurl).text
             )
-            logging.info(f"First Response: {response}")
+            if DEBUG:
+                logging.info(f"First Response: {response}")
             data = json.loads(response)
             if "detail" not in data.keys():
                 uuurl = (
@@ -552,7 +542,8 @@ class Udemy:
                     if USE_PRXY
                     else self.scraper.get(uuurl).text
                 )
-                logging.info(f"Second Response: {response}")
+                if DEBUG:
+                    logging.info(f"Second Response: {response}")
                 try:
                     data = json.loads(response)
                     logging.info(data)

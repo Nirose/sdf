@@ -6,7 +6,8 @@ import re
 from lxml import html, etree
 import requests
 import random
-import psycopg2
+import psycopg
+from psycopg import sql as query
 import cloudscraper
 
 # import pyperclip
@@ -68,9 +69,14 @@ def cleanDir(folder):
         # print(os.path.join(dir, f))
 
 
+class UniqueViolation(Exception):
+    pass
+
+
 class booktoForum:
     def __init__(self):
         # AWS location r"C:\Users\Administrator\Desktop\J\Chrome\bin\chrome.exe"
+        self.conn = dbc.connect_pool()
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6729.1 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -109,6 +115,7 @@ class booktoForum:
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=1")
         if not DEPLOYED:
+            options.binary_location = os.getenv("CHROME")
             s = Service(executable_path=os.getenv("CHROMEDRIVER"))
             self.d = webdriver.Chrome(service=s, options=options)
         else:
@@ -142,21 +149,30 @@ class booktoForum:
         # s = requests.Session()
         # c = [s.cookies.set(c["name"], c["value"]) for c in request_cookies_browser]
 
-    def sendSQL(self, sql):
-        send = dbc.connect()
-        cur = send.cursor()
+    def sendSQL(self, sql: str, val=None):
         try:
-            cur.execute(sql)
-            send.commit()
-            send.close()
-        except psycopg2.errors.UniqueViolation:
-            print("Duplicate found!")
-            send.close()
-        except Exception:
-            # print(sql)
-            # logging.error(traceback.format_exc())
-            print("Could not execute insert command")
-            send.close()
+            # send = self.conn.getconn()
+            with self.conn.getconn() as send, send.cursor() as cur:
+                try:
+                    if val:
+                        cur.execute(
+                            query.SQL(sql).format(query.Identifier("udemy")), val
+                        )
+                    else:
+                        cur.execute(sql)
+                        send.commit()
+                except psycopg.errors.UniqueViolation:
+                    print("Duplicate Error!")
+                    raise UniqueViolation
+                except psycopg.DatabaseError as e:
+                    print(sql)
+                    logging.error(traceback.format_exc())
+                    print("Could not execute command", e.pgcode)
+                    raise Exception
+                finally:
+                    cur.close()
+        finally:
+            self.conn.putconn(send)
 
     def closeSQL(self):
         dbc.conn.close()
@@ -206,7 +222,9 @@ class booktoForum:
 
         tree = html.fromstring(str(ar.content))
         links = 0
-        search = tree.xpath('//div[starts-with(@id, "B")]/a[@class="a-link-normal"][1]')
+        search = tree.xpath(
+            '//div[starts-with(@id, "B")]/a[contains(@class,"a-link-normal")]'
+        )
         if len(search) == 0:
             search = tree.xpath(
                 '//div[@class="zg-grid-general-faceout"]/div/a[@class="a-link-normal"][1]'
@@ -266,7 +284,7 @@ class booktoForum:
             try:
                 asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
                 if DEBUG:
-                    print(ar, asin)
+                    logging.info(f"{ar}, {asin}")
                 self.newAsins.add(asin)
             except IndexError:
                 print("Skipping: ", ar)
