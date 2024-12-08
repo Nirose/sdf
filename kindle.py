@@ -210,7 +210,7 @@ class booktoForum:
         except Exception:
             print("Could not delete the older ASINs")
 
-    # amazon
+    # amazon method
 
     def amazon(self, url):
         ar = self.scraper.get(url)
@@ -220,24 +220,31 @@ class booktoForum:
             with open("debug/amazon.html", "w", encoding="utf-8") as f:
                 f.write(str(ar.content))
 
-        tree = html.fromstring(str(ar.content))
         links = 0
-        search = tree.xpath(
-            '//div[starts-with(@id, "B")]/a[contains(@class,"a-link-normal")]'
-        )
-        if len(search) == 0:
-            search = tree.xpath(
-                '//div[@class="zg-grid-general-faceout"]/div/a[@class="a-link-normal"][1]'
-            )
 
-        for elm in search:
-            asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
-            # link = "https://www.amazon.com" + re.sub(
-            #     r"\/ref.+", "", str(elm.xpath("@href")[0])
-            # )
-            # print(asin)
+        # tree = html.fromstring(str(ar.content))
+        # search = tree.xpath(
+        #     '//div[starts-with(@id, "B")]/a[contains(@class,"a-link-normal")]'
+        # )
+        # if len(search) == 0:
+        #     search = tree.xpath(
+        #         '//div[@class="zg-grid-general-faceout"]/div/a[@class="a-link-normal"][1]'
+        #     )
+
+        asins = re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(ar.content))
+
+        for asin in asins:
             self.newAsins.add(asin)
             links += 1
+
+        # for elm in search:
+        #     asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
+        #     # link = "https://www.amazon.com" + re.sub(
+        #     #     r"\/ref.+", "", str(elm.xpath("@href")[0])
+        #     # )
+        #     # print(asin)
+        #     self.newAsins.add(asin)
+        #     links += 1
         if DEPLOYED:
             logging.info((f"Amazon: {links} found"))
         else:
@@ -352,7 +359,7 @@ class booktoForum:
 
     def removegetAdd(self):
         self.deleteOld()
-        amz = f"{PULL}https://www.amazon.com/Best-Sellers-Kindle-Store/zgbs/digital-text/?tf=1"
+        amz = f"{PULL}https://www.amazon.com/amz-books/book-deals"
         burl = "https://www.bookzio.com/daily-deals-bargain-books/"
         hurl = "https://www.hotukdeals.com/rss/tag/freebies"
         # open('books.txt', 'w').close()
@@ -477,26 +484,6 @@ class booktoForum:
                                 print(f"Waiting {wait} seconds...")
                                 time.sleep(wait)
                                 continue
-
-                        if price and "$0.00" in str(price):
-                            time.sleep(1)
-                            if item:
-                                title = item.item_info.title.display_value
-                            else:
-                                title = (
-                                    driver.find_element(
-                                        by=By.XPATH, value='//h1[@id="ebooksTitle"]'
-                                    ).text
-                                    if (
-                                        driver.find_elements(
-                                            by=By.CSS_SELECTOR, value="#ebooksTitle"
-                                        )
-                                    )
-                                    else driver.find_element(
-                                        by=By.XPATH, value='//span[@id="productTitle"]'
-                                    ).text
-                                )
-                            cleantitle = title
                             try:
                                 ogprice = (
                                     driver.find_element(
@@ -540,6 +527,29 @@ class booktoForum:
                                 else:
                                     print(f"Couldnt find original price for {link}")
                                 continue
+                        # FREE
+                        # if price and "$0.00" in str(price):
+                        if price and float(ogprice.strip().split("$")[1]) > float(
+                            price.strip().split("$")[1]
+                        ):
+                            time.sleep(1)
+                            if item:
+                                title = item.item_info.title.display_value
+                            else:
+                                title = (
+                                    driver.find_element(
+                                        by=By.XPATH, value='//h1[@id="ebooksTitle"]'
+                                    ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR, value="#ebooksTitle"
+                                        )
+                                    )
+                                    else driver.find_element(
+                                        by=By.XPATH, value='//span[@id="productTitle"]'
+                                    ).text
+                                )
+                            cleantitle = title
 
                             rating = (
                                 driver.find_element(
@@ -577,6 +587,7 @@ class booktoForum:
                                 )
                                 else ""
                             )
+                            revnum = revnum.strip().split("(")[1].split(")")[0]
 
                             if item:
                                 img = item.images.primary.large.url
@@ -624,7 +635,8 @@ class booktoForum:
                                     else ""
                                 )
 
-                            title += " (" + str(ogprice) + " to Free)"
+                            price = "FREE" if ("$0.00" in price) else price
+                            title += " (" + str(ogprice) + " to " + str(price) + ")"
 
                             desc = (
                                 driver.find_element(
@@ -657,7 +669,7 @@ class booktoForum:
 
 [b]Author: [color=green]{2}[/color].
 
-Rating:[color=maroon] {3} ({4})[/color][/b]
+Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
 
 [size=10pt][color=green][b]Book Description:[/b][/color][/size]
 
@@ -689,7 +701,7 @@ Rating:[color=maroon] {3} ({4})[/color][/b]
                                 )
                                 driver.execute_script("arguments[0].click()", ele)
                             # driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
-                            wait = random.randint(10, 60)
+                            wait = random.randint(150, 300)
                             print(f"Posted! Waiting {wait} seconds...")
                             time.sleep(wait)
                             # Add the ASIN to the db
