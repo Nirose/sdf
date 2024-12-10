@@ -676,7 +676,8 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
 {5}
 
 
-[url={6}?tag=amazonint-20][img alt=Download {0} for Kindle]https://www.jucktion.com/f/uploads/amzbtn.png[/img][/url]   [url=https://www.jucktion.com/f/books?utm_campaign=morebooks][img alt=Download More Amazon Books]https://www.jucktion.com/f/uploads/amazonbooks.png[/img][/url]"""
+[url={6}?tag=amazonint-20][img alt=Download {0} for Kindle]https://www.jucktion.com/f/uploads/amzbtn.png[/img][/url]   [url=https://www.jucktion.com/f/books?utm_campaign=morebooks][img alt=Download More Amazon Books]https://www.jucktion.com/f/uploads/amazonbooks.png[/img][/url]
+\n\n\n[sub]Please note: As an affiliate partner with Amazon, this post includes affiliate links. Purchasing items on Amazon through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support![/sub]"""
                             copy = textform.format(
                                 cleantitle, img, author, rating, revnum, desc, link
                             )
