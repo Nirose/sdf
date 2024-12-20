@@ -5,7 +5,7 @@ name: courses
 on:
  workflow_dispatch:
  schedule:
-   - cron: "*/15 */1 * * *"
+   - cron: "*/35 * * * *"
 permissions: write-all
 env: # Or as an environment variable
       DB_URL: ${{ secrets.DB_URL }}
