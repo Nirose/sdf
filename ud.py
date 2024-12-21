@@ -576,7 +576,7 @@ if __name__ == "__main__":
     # print(ud.oldcourses)
     # print(ud.rsscourses)
 
-    if DEPLOYED:
+    if not DEPLOYED:
         try:
             ud.du(5)
         except Exception as e:

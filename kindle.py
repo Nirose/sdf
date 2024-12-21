@@ -115,8 +115,8 @@ class booktoForum:
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=1")
         if not DEPLOYED:
-            options.binary_location = os.getenv("CHROME")
-            s = Service(executable_path=os.getenv("CHROMEDRIVER"))
+            options.binary_location = "/usr/bin/chromium-browser"
+            s = Service(executable_path="/usr/bin/chromedriver")
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/chromium-browser"
