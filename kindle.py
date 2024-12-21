@@ -587,7 +587,11 @@ class booktoForum:
                                 )
                                 else ""
                             )
-                            revnum = revnum.strip().split("(")[1].split(")")[0]
+                            revnum = (
+                                revnum.strip().split("(")[1].split(")")[0]
+                                if ("(" in revnum)
+                                else revnum
+                            )
 
                             if item:
                                 img = item.images.primary.large.url
