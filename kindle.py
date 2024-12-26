@@ -474,6 +474,16 @@ class booktoForum:
                                         )
                                     )
                                     else driver.find_element(
+                                        by=By.CSS_SELECTOR,
+                                        value=".slot-price .ebook-price-value",
+                                    ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value=".slot-price .ebook-price-value",
+                                        )
+                                    )
+                                    else driver.find_element(
                                         by=By.CSS_SELECTOR, value="#price-to-pay"
                                     ).text
                                 )

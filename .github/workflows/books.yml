@@ -5,7 +5,7 @@ name: books
 on:
  workflow_dispatch:
  schedule:
-   - cron: "7 */1 * * *"
+   - cron: "*/30 * * * *"
 permissions: write-all
 env: # Or as an environment variable
       DB_URL: ${{ secrets.DB_URL }}
@@ -20,7 +20,7 @@ env: # Or as an environment variable
 jobs:
   cron:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v4
