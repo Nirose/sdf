@@ -90,6 +90,8 @@ class Udemy:
         )
         self.proxy = {"http": PRXY, "https": PRXY}
         self.threads = THREADS
+        self.ogprice = 0
+        self.saleprice = 0
 
     #
     # SQL STUFF
@@ -272,6 +274,30 @@ class Udemy:
             # print(data)
             self.addtoDB(data)
 
+    # Add to DB without creating html or xml pages
+    def addNewSale(self, url: str, source: str):
+        # get course details for the current url
+        details = self.getUdeId(url)
+        notneeded = self.oldcourses.union(self.foundcourses)
+        if int(details["id"]) not in notneeded:
+            # add new course id to the list
+            self.foundcourses.add(int(details["id"]))
+            # add the new items to db
+            newtitle = f"{details['title'].replace('&', 'and')} ({self.ogprice} to {'FREE' if self.saleprice == 0.0 else self.saleprice})"
+            # format cid,price,image,title,desc,pub,link
+            data = [
+                details["id"],
+                details["price"],
+                details["image"],
+                newtitle,
+                details["desc"],
+                details["pub"],
+                details["link"],
+                source,
+            ]
+            # print(data)
+            self.addtoDB(data)
+
     def createPages(self, url: str, kind: str):
         # get course details for the current url
         details = self.getUdeId(url)
@@ -333,10 +359,10 @@ class Udemy:
     def checkAdd(self, url: str, source: str):
         if self.unique(url):
             try:
-                if self.verifyUdemy(url):
+                if self.verifyUdemySale(url):
                     if not DEPLOYED:
                         logging.info(f"FREE: {url}")
-                    self.addNew(url, source)
+                    self.addNewSale(url, source)
                 else:
                     logging.info(f"NOT: {url}")
             except Exception as e:
@@ -554,6 +580,63 @@ class Udemy:
                     )
                     return False
 
+            else:
+                logging.info(data)
+                return False
+        except Exception as e:
+            logging.error(f"Exception occured while trying to verify {e}")
+
+    def verifyUdemySale(self, url):
+        self.ogprice = 0
+        self.saleprice = 0
+        uurl = (
+            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
+        )
+        try:
+            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
+        except KeyError:
+            coupon = ""
+        # logging.info(uurl)
+        try:
+            response = (
+                self.scraper.get(uurl, proxies=self.proxy).text
+                if USE_PRXY
+                else self.scraper.get(uurl).text
+            )
+            if DEBUG:
+                logging.info(f"First Response: {response}")
+            data = json.loads(response)
+            self.ogprice = data["price_detail"]["amount"]
+            if "detail" not in data.keys():
+                uuurl = (
+                    "https://www.udemy.com/api-2.0/course-landing-components/"
+                    + str(data["id"])
+                    + "/me/?couponCode="
+                    + str(coupon)
+                    + "&components=buy_button"
+                )
+                logging.info(uuurl)  # check for the coupons validity
+                response = (
+                    self.scraper.get(uuurl, proxies=self.proxy).text
+                    if USE_PRXY
+                    else self.scraper.get(uuurl).text
+                )
+                if DEBUG:
+                    logging.info(f"Second Response: {response}")
+
+                try:
+                    data = json.loads(response)
+                    self.saleprice = data["buy_button"]["button"]["payment_data"][
+                        "purchasePrice"
+                    ]["amount"]
+                    logging.info(data)
+                    if self.saleprice < self.ogprice and self.saleprice < 10.00:
+                        return True
+                except Exception as e:
+                    logging.error(
+                        f"Response is not formatted: {response}, Exception: {e}"
+                    )
+                    return False
             else:
                 logging.info(data)
                 return False
