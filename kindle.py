@@ -414,9 +414,9 @@ class booktoForum:
                 try:
                     logging.info(f"https://www.amazon.com/dp/{str(asin)}")
                     link = "https://www.amazon.com/dp/" + str(asin)
-                    logging.info(f"{i+1} of {len(listB)}: {link}")
+                    logging.info(f"{i + 1} of {len(listB)}: {link}")
 
-                    print(f"{i+1} of {len(listB)}: ", link)
+                    print(f"{i + 1} of {len(listB)}: ", link)
                     # driver = getProxy(link)  # Use proxy to get Amazon content
                     # pyperclip.copy(driver.page_source)
                     driver = self.getwoProxy(link)
@@ -484,6 +484,16 @@ class booktoForum:
                                         )
                                     )
                                     else driver.find_element(
+                                        by=By.CSS_SELECTOR,
+                                        value=".centralizedApexPricePriceToPayMargin",
+                                    ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value=".centralizedApexPricePriceToPayMargin",
+                                        )
+                                    )
+                                    else driver.find_element(
                                         by=By.CSS_SELECTOR, value="#price-to-pay"
                                     ).text
                                 )
@@ -523,6 +533,14 @@ class booktoForum:
                                     if driver.find_elements(
                                         by=By.CSS_SELECTOR,
                                         value="#print-list-price .a-text-strike",
+                                    )
+                                    else driver.find_element(
+                                        by=By.CSS_SELECTOR,
+                                        value=".a-price.a-text-price",
+                                    ).text
+                                    if driver.find_elements(
+                                        by=By.CSS_SELECTOR,
+                                        value=".a-price.a-text-price",
                                     )
                                     else driver.find_element(
                                         by=By.CSS_SELECTOR,
