@@ -90,8 +90,6 @@ class Udemy:
         )
         self.proxy = {"http": PRXY, "https": PRXY}
         self.threads = THREADS
-        self.ogprice = 0
-        self.saleprice = 0
 
     #
     # SQL STUFF
@@ -213,7 +211,7 @@ class Udemy:
         cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\
 \n\n\
 {hide_string}\
-[url={rand.choice([UD_AF,UD_FA])}{quote(link)}][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
+[url={rand.choice([UD_AF, UD_FA])}{quote(link)}][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
 {hide_end_string}\
 \n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support![/sub]"
 
@@ -260,30 +258,6 @@ class Udemy:
             newtitle = (
                 f"{details['title'].replace('&', 'and')} ({details['price']} to FREE)"
             )
-            # format cid,price,image,title,desc,pub,link
-            data = [
-                details["id"],
-                details["price"],
-                details["image"],
-                newtitle,
-                details["desc"],
-                details["pub"],
-                details["link"],
-                source,
-            ]
-            # print(data)
-            self.addtoDB(data)
-
-    # Add to DB without creating html or xml pages
-    def addNewSale(self, url: str, source: str):
-        # get course details for the current url
-        details = self.getUdeId(url)
-        notneeded = self.oldcourses.union(self.foundcourses)
-        if int(details["id"]) not in notneeded:
-            # add new course id to the list
-            self.foundcourses.add(int(details["id"]))
-            # add the new items to db
-            newtitle = f"{details['title'].replace('&', 'and')} ({self.ogprice} to {'FREE' if self.saleprice == 0.0 else self.saleprice})"
             # format cid,price,image,title,desc,pub,link
             data = [
                 details["id"],
@@ -359,10 +333,10 @@ class Udemy:
     def checkAdd(self, url: str, source: str):
         if self.unique(url):
             try:
-                if self.verifyUdemySale(url):
+                if self.verifyUdemy(url):
                     if not DEPLOYED:
                         logging.info(f"FREE: {url}")
-                    self.addNewSale(url, source)
+                    self.addNew(url, source)
                 else:
                     logging.info(f"NOT: {url}")
             except Exception as e:
@@ -457,7 +431,7 @@ class Udemy:
         if source not in self.oldlinks:
             if DEBUG:
                 logging.info(f"Crawling: {source}")
-            re = self.scraper.get(f'{UD_DU}/go/{source.split("/")[-1]}')
+            re = self.scraper.get(f"{UD_DU}/go/{source.split('/')[-1]}")
             tree = html.fromstring(bytes(re.text, encoding="utf-8"))
             url = tree.xpath('//a[contains(@href,"couponCode=")]/@href')[0]
             logging.info(f"Found: {url}")
@@ -586,63 +560,6 @@ class Udemy:
         except Exception as e:
             logging.error(f"Exception occured while trying to verify {e}")
 
-    def verifyUdemySale(self, url):
-        self.ogprice = 0
-        self.saleprice = 0
-        uurl = (
-            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
-        )
-        try:
-            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
-        except KeyError:
-            coupon = ""
-        # logging.info(uurl)
-        try:
-            response = (
-                self.scraper.get(uurl, proxies=self.proxy).text
-                if USE_PRXY
-                else self.scraper.get(uurl).text
-            )
-            if DEBUG:
-                logging.info(f"First Response: {response}")
-            data = json.loads(response)
-            self.ogprice = data["price_detail"]["amount"]
-            if "detail" not in data.keys():
-                uuurl = (
-                    "https://www.udemy.com/api-2.0/course-landing-components/"
-                    + str(data["id"])
-                    + "/me/?couponCode="
-                    + str(coupon)
-                    + "&components=buy_button"
-                )
-                logging.info(uuurl)  # check for the coupons validity
-                response = (
-                    self.scraper.get(uuurl, proxies=self.proxy).text
-                    if USE_PRXY
-                    else self.scraper.get(uuurl).text
-                )
-                if DEBUG:
-                    logging.info(f"Second Response: {response}")
-
-                try:
-                    data = json.loads(response)
-                    self.saleprice = data["buy_button"]["button"]["payment_data"][
-                        "purchasePrice"
-                    ]["amount"]
-                    logging.info(data)
-                    if self.saleprice < self.ogprice and self.saleprice < 10.00:
-                        return True
-                except Exception as e:
-                    logging.error(
-                        f"Response is not formatted: {response}, Exception: {e}"
-                    )
-                    return False
-            else:
-                logging.info(data)
-                return False
-        except Exception as e:
-            logging.error(f"Exception occured while trying to verify {e}")
-
     def manageID(self):
         # self.deleteOld()
         self.cs(2)
@@ -700,7 +617,7 @@ if __name__ == "__main__":
             + CHATID
             + "&text="
         )
-        msg = f"{len(ud.newcourses)} courses found in {round((end-start)/60,2)} minutes"
+        msg = f"{len(ud.newcourses)} courses found in {round((end - start) / 60, 2)} minutes"
         ud.scraper.get(tg + msg)
     # if DEPLOYED == 1:
     #     print(f'waiting for: {str(round(INTERVAL/60,2))} minutes')
