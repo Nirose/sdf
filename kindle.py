@@ -557,9 +557,9 @@ class booktoForum:
                                 continue
                         # FREE
                         # if price and "$0.00" in str(price):
-                        if price and float(ogprice.strip().split("$")[1]) > float(
-                            price.strip().split("$")[1]
-                        ):
+                        if price and float(
+                            ogprice.strip().split("$")[1].replace("\n", "")
+                        ) > float(price.strip().split("$")[1].replace("\n", "")):
                             time.sleep(1)
                             if item:
                                 title = item.item_info.title.display_value
