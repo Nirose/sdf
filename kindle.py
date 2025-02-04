@@ -294,7 +294,7 @@ class booktoForum:
                     logging.info(f"{ar}, {asin}")
                 self.newAsins.add(asin)
             except IndexError:
-                print("Skipping: ", ar)
+                print("Skipping (HUKD): ", ar)
         except Exception:
             logging.error(traceback.format_exc())
 
@@ -485,6 +485,16 @@ class booktoForum:
                                     )
                                     else driver.find_element(
                                         by=By.CSS_SELECTOR,
+                                        value=".kindleExtraMessage .a-color-price",
+                                    ).text
+                                    if (
+                                        driver.find_elements(
+                                            by=By.CSS_SELECTOR,
+                                            value=".kindleExtraMessage .a-color-price",
+                                        )
+                                    )
+                                    else driver.find_element(
+                                        by=By.CSS_SELECTOR,
                                         value=".centralizedApexPricePriceToPayMargin",
                                     ).text
                                     if (
@@ -557,6 +567,10 @@ class booktoForum:
                                 continue
                         # FREE
                         # if price and "$0.00" in str(price):
+                        if DEBUG:
+                            logging.info(
+                                f"OG: {ogprice.strip()}, New: {price.strip()}\nAFTER \nOG: {ogprice.strip().split('$')[1].replace('\n', '')}, New: {price.strip().split('$')[1].replace('\n', '')}"
+                            )
                         if price and float(
                             ogprice.strip().split("$")[1].replace("\n", "")
                         ) > float(price.strip().split("$")[1].replace("\n", "")):
@@ -734,7 +748,7 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                                 )
                                 driver.execute_script("arguments[0].click()", ele)
                             # driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
-                            wait = random.randint(60, 150)
+                            wait = random.randint(60, 120)
                             print(f"Posted! Waiting {wait} seconds...")
                             time.sleep(wait)
                             # Add the ASIN to the db

@@ -1,0 +1,22 @@
+2025-02-04 14:38:46,652 - INFO - Deleting contents of folder debug
+2025-02-04 14:38:52,839 - WARNING - Connection pool is full, discarding connection: www.hotukdeals.com. Connection pool size: 10
+2025-02-04 14:38:52,840 - WARNING - Connection pool is full, discarding connection: www.hotukdeals.com. Connection pool size: 10
+2025-02-04 14:38:53,066 - INFO - https://www.amazon.co.uk/dp/B00EJRPZEQ?smid=A1G3UP32AZJ14F, B00EJRPZEQ
+2025-02-04 14:38:53,105 - INFO - https://www.amazon.co.uk/dp/B0D974T2QR?smid=A1G3UP32AZJ14F, B0D974T2QR
+2025-02-04 14:38:53,129 - INFO - https://www.amazon.co.uk/dp/B081BCQM73?smid=A1G3UP32AZJ14F, B081BCQM73
+2025-02-04 14:38:53,129 - INFO - https://www.amazon.co.uk/dp/B0193VFIOO?smid=A1G3UP32AZJ14F, B0193VFIOO
+2025-02-04 14:38:53,131 - INFO - https://www.amazon.co.uk/dp/B005792PXO?smid=A1G3UP32AZJ14F, B005792PXO
+2025-02-04 14:38:53,133 - INFO - https://www.amazon.co.uk/dp/B01M6ZHJDM?smid=A1G3UP32AZJ14F, B01M6ZHJDM
+2025-02-04 14:38:53,137 - INFO - https://www.amazon.co.uk/dp/B0046A9PC4?smid=A1G3UP32AZJ14F, B0046A9PC4
+2025-02-04 14:38:53,141 - INFO - https://www.amazon.co.uk/dp/B00HYQJNH4?smid=A1G3UP32AZJ14F, B00HYQJNH4
+2025-02-04 14:38:53,142 - INFO - https://www.amazon.co.uk/dp/B08H2GFSY6?smid=A1G3UP32AZJ14F, B08H2GFSY6
+2025-02-04 14:38:53,143 - INFO - https://www.amazon.co.uk/dp/B0CW1GDM7L?smid=A1G3UP32AZJ14F, B0CW1GDM7L
+2025-02-04 14:38:53,222 - WARNING - Connection pool is full, discarding connection: www.hotukdeals.com. Connection pool size: 10
+2025-02-04 14:38:53,259 - INFO - https://www.amazon.co.uk/dp/B08PT1H7L5?smid=A1G3UP32AZJ14F, B08PT1H7L5
+2025-02-04 14:38:53,410 - WARNING - Connection pool is full, discarding connection: www.amazon.co.uk. Connection pool size: 10
+2025-02-04 14:38:53,411 - INFO - https://www.amazon.co.uk/dp/B015EF915K?smid=A1G3UP32AZJ14F, B015EF915K
+2025-02-04 14:38:55,406 - WARNING - Connection pool is full, discarding connection: www.amazon.co.uk. Connection pool size: 10
+2025-02-04 14:38:55,409 - INFO - https://www.amazon.co.uk/dp/B086RNG5SX?smid=A1G3UP32AZJ14F, B086RNG5SX
+2025-02-04 14:39:05,630 - INFO - New found: 234
+2025-02-04 14:39:16,903 - INFO - https://www.amazon.com/dp/B09S6B2ZJL
+2025-02-04 14:39:16,903 - INFO - 1 of 234: https://www.amazon.com/dp/B09S6B2ZJL
