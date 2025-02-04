@@ -20,7 +20,7 @@ env: # Or as an environment variable
 jobs:
   cron:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v4
