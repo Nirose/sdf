@@ -174,6 +174,16 @@ class booktoForum:
         finally:
             self.conn.putconn(send)
 
+    def addtoDB(self, asin, title, image, desc, price, sale):
+        val = f"('{asin}','https://www.amazon.com/dp/{asin}','{title.replace("'", '')}','{image}','{desc.replace("'", '')}','{price}','{sale}')"
+        sql = f"INSERT INTO kindle(asin,link, title, image, description, price, sale) values {val}"
+        if DEBUG:
+            logging.info(f"{sql}")
+        try:
+            self.sendSQL(sql)
+        except Exception:
+            print("Couldn't Add to DB!")
+
     def closeSQL(self):
         dbc.conn.close()
 
@@ -348,16 +358,6 @@ class booktoForum:
 
         for t in threads:
             t.join()  # loop through all the threads and wait for them to finish
-
-    def addtoDB(self, asin, title, image, desc, price, sale):
-        val = f"('{asin}','https://www.amazon.com/dp/{asin}','{title}','{image}','{desc}','{price}','{sale}')"
-        sql = f"INSERT INTO kindle(asin,link, title, image, description, price, sale) values {val}"
-        if DEBUG:
-            logging.info(f"{sql}")
-        try:
-            self.sendSQL(sql)
-        except Exception:
-            print("Couldn't Add to DB!")
 
     def removegetAdd(self):
         self.deleteOld()
