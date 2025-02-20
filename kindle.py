@@ -349,9 +349,11 @@ class booktoForum:
         for t in threads:
             t.join()  # loop through all the threads and wait for them to finish
 
-    def addtoDB(self, asin):
-        val = "('" + asin + f"','https://www.amazon.com/dp/{asin}')"
-        sql = f"INSERT INTO kindle(asin,link) values {val}"
+    def addtoDB(self, asin, title, image, desc, price, sale):
+        val = f"('{asin}','https://www.amazon.com/dp/{asin}','{title}','{image}','{desc}','{price}','{sale}')"
+        sql = f"INSERT INTO kindle(asin,link, title, image, description, price, sale) values {val}"
+        if DEBUG:
+            logging.info(f"{sql}")
         try:
             self.sendSQL(sql)
         except Exception:
@@ -577,6 +579,7 @@ class booktoForum:
                             time.sleep(1)
                             if item:
                                 title = item.item_info.title.display_value
+
                             else:
                                 title = (
                                     driver.find_element(
@@ -735,7 +738,14 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                             )
 
                             time.sleep(2)
-                            self.addtoDB(asin)
+                            self.addtoDB(
+                                asin=asin,
+                                title=cleantitle,
+                                image=img,
+                                desc=desc,
+                                price=ogprice,
+                                sale=price,
+                            )
                             # scr = f"document.getElementsByName('message')[0].innerHTML = {json.dumps(desc)};"
                             # print(scr)
                             if driver.find_elements(by=By.NAME, value="subject"):
