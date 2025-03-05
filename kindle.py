@@ -487,12 +487,12 @@ class booktoForum:
                                     )
                                     else driver.find_element(
                                         by=By.CSS_SELECTOR,
-                                        value=".slot-price .a-color-price",
+                                        value=".kindleExtraMessage .a-color-price",
                                     ).text
                                     if (
                                         driver.find_elements(
                                             by=By.CSS_SELECTOR,
-                                            value=".slot-price .a-color-price",
+                                            value=".kindleExtraMessage .a-color-price",
                                         )
                                     )
                                     else driver.find_element(
