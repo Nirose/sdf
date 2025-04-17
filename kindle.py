@@ -605,7 +605,7 @@ class booktoForum:
                                 )
                                 else driver.find_element(
                                     by=By.CSS_SELECTOR,
-                                    value="#acrCustomerReviewLink .a-size-base",
+                                    value="#acrCustomerReviewLink span.a-color-base",
                                 ).text
                                 + " out of 5"
                                 if driver.find_elements(
