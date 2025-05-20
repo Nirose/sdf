@@ -457,26 +457,6 @@ class booktoForum:
                                 price = (
                                     driver.find_element(
                                         by=By.CSS_SELECTOR,
-                                        value=".kindle-price td .a-color-price",
-                                    ).text
-                                    if (
-                                        driver.find_elements(
-                                            by=By.CSS_SELECTOR,
-                                            value=".kindle-price td .a-color-price",
-                                        )
-                                    )
-                                    else driver.find_element(
-                                        by=By.CSS_SELECTOR,
-                                        value="#kindle-price.a-color-price",
-                                    ).text
-                                    if (
-                                        driver.find_elements(
-                                            by=By.CSS_SELECTOR,
-                                            value="#kindle-price.a-color-price",
-                                        )
-                                    )
-                                    else driver.find_element(
-                                        by=By.CSS_SELECTOR,
                                         value=".slot-price .ebook-price-value",
                                     ).text
                                     if (
@@ -511,11 +491,12 @@ class booktoForum:
                                 )
                             except Exception:
                                 print("Could not find price element in source code")
-                                price = False
-                                wait = random.randint(60, 120)
-                                print(f"Waiting {wait} seconds...")
-                                time.sleep(wait)
+                                # price = False
+                                # wait = random.randint(60, 120)
+                                # print(f"Waiting {wait} seconds...")
+                                # time.sleep(wait)
                                 continue
+                            price = ".".join(price.strip().split())
                             try:
                                 ogprice = (
                                     driver.find_element(
@@ -571,11 +552,11 @@ class booktoForum:
                         # if price and "$0.00" in str(price):
                         if DEBUG:
                             logging.info(
-                                f"OG: {ogprice.strip()}, New: {price.strip()}\nAFTER \nOG: {ogprice.strip().split('$')[1].replace('\n', '')}, New: {price.strip().split('$')[1].replace('\n', '')}"
+                                f"OG: {ogprice.strip()}, New: {price.strip()}\nAFTER \nOG: {ogprice.strip().split('$')[1]}, New: {price.strip().split('$')[1]}"
                             )
-                        if price and float(
-                            ogprice.strip().split("$")[1].replace("\n", "")
-                        ) > float(price.strip().split("$")[1].replace("\n", "")):
+                        if price and float(ogprice.strip().split("$")[1]) > float(
+                            price.strip().split("$")[1]
+                        ):
                             time.sleep(1)
                             if item:
                                 title = item.item_info.title.display_value
