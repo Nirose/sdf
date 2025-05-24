@@ -264,15 +264,18 @@ class booktoForum:
 
     def zio(self, run):
         f = requests.get(run, headers=self.headers)
-        if f.text.find('<span class="value">Free</span>') != -1:
-            amz = html.fromstring(f.text)
-            for elm in amz.xpath('//li[@class="link amazon-us"]/a'):
-                asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
-                # link = elm.xpath("@href")[0]
-                # print(asin)
-                self.newAsins.add(asin)
-            # sql = f"INSERT INTO kindle(asin,link) VALUES('{asin}','{link}')"
-            # sendSQL(sql)
+
+        amz = html.fromstring(f.text)
+        for elm in amz.xpath('//div/a[text()="Amazon USA"]/@href'):
+            ar = self.scraper.get(elm).url
+            if DEBUG:
+                logging.info(f"{elm},{ar}")
+            asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
+            # link = elm.xpath("@href")[0]
+            # print(asin)
+            self.newAsins.add(asin)
+        # sql = f"INSERT INTO kindle(asin,link) VALUES('{asin}','{link}')"
+        # sendSQL(sql)
 
     # bookzio
 
@@ -285,7 +288,7 @@ class booktoForum:
                 f.write(br.text)
 
         tree = html.fromstring(br.text)
-        links = tree.xpath('//h2[@class="entry-title"]/a/@href')
+        links = tree.xpath('//h2[@class="df-post-title"]/a/@href')
         if DEPLOYED:
             logging.info((f"Bookzio: {len(links)} found"))
         else:
@@ -362,7 +365,7 @@ class booktoForum:
     def removegetAdd(self):
         self.deleteOld()
         amz = f"{PULL}https://www.amazon.com/amz-books/book-deals"
-        burl = "https://www.bookzio.com/daily-deals-bargain-books/"
+        burl = "https://www.bookzio.com/latest-book-deals/"
         hurl = "https://www.hotukdeals.com/rss/tag/freebies"
         # open('books.txt', 'w').close()
 
