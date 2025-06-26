@@ -85,10 +85,9 @@ class apptoForum:
     def login(self):
         self.chrome()
         driver = self.d
-        driver.get("https://www.jucktion.com/f/help?type=rss")
+        driver.get("https://www.jucktion.com/f/login?type=rss")
         cookie = {"name": "jktn_selenium", "value": "apps", "domain": ".jucktion.com"}
         driver.add_cookie(cookie)
-        driver.get("https://www.jucktion.com/f/login/")
         driver.find_elements(by=By.NAME, value="user")[1].send_keys(self.user)
         driver.find_elements(by=By.NAME, value="passwrd")[1].send_keys(self.passw)
         driver.find_elements(by=By.NAME, value="cookielength")[0].send_keys("360")
@@ -510,7 +509,7 @@ if __name__ == "__main__":
     # print(listed)
 
     if not DEPLOYED:
-        print(f"Completed: {round((end - start)/60,2)} minutes")
-        logging.info(f"It took {round((end - start)/60,2)} minutes")
+        print(f"Completed: {round((end - start) / 60, 2)} minutes")
+        logging.info(f"It took {round((end - start) / 60, 2)} minutes")
     else:
-        logging.info(f"It took {round((end - start)/60,2)} minutes")
+        logging.info(f"It took {round((end - start) / 60, 2)} minutes")
