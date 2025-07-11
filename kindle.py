@@ -266,16 +266,19 @@ class booktoForum:
         f = requests.get(run, headers=self.headers)
 
         amz = html.fromstring(f.text)
-        for elm in amz.xpath('//div/a[text()="Amazon USA"]/@href'):
-            ar = self.scraper.get(elm).url
-            if DEBUG:
-                logging.info(f"{elm},{ar}")
-            asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
-            # link = elm.xpath("@href")[0]
-            # print(asin)
-            self.newAsins.add(asin)
-        # sql = f"INSERT INTO kindle(asin,link) VALUES('{asin}','{link}')"
-        # sendSQL(sql)
+        asin = re.findall(
+            r"B[0-9A-Z]{9,9}", amz.xpath('//div/a[text()="Amazon USA"]/@href')[0]
+        )[0]
+        logging.info(f"{run}, {asin}")
+        self.newAsins.add(asin)
+        # for elm in amz.xpath('//div/a[text()="Amazon USA"]/@href'):
+        #     ar = self.scraper.get(elm).url
+        #     if DEBUG:
+        #         logging.info(f"{elm},{ar}")
+        #     asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
+        #     # link = elm.xpath("@href")[0]
+        #     # print(asin)
+        #     self.newAsins.add(asin)
 
     # bookzio
 
