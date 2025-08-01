@@ -85,7 +85,7 @@ class apptoForum:
     def login(self):
         self.chrome()
         driver = self.d
-        driver.get("https://www.jucktion.com/f/login?type=rss")
+        driver.get("https://www.jucktion.com/f/login?type=auto")
         cookie = {"name": "jktn_selenium", "value": "apps", "domain": ".jucktion.com"}
         driver.add_cookie(cookie)
         driver.find_elements(by=By.NAME, value="user")[1].send_keys(self.user)
