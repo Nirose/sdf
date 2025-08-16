@@ -192,29 +192,30 @@ class Udemy:
 
         alt = re.sub(r"\[.*?\]", "", title)
         alt = alt.strip()
-        desc = (
-            des.replace("<li>", "-")
-            .replace("<strong>", "[b]")
-            .replace("</strong>", "[/b]")
-        )
-        sdesc = desc.split("</p>")
-        clean = []
-        for p in sdesc:
-            a = re.sub(r"<.*?>", "", p, flags=re.M)
-            b = re.sub(r"[\s]{2,}", "", a, flags=re.M)
-            clean.append(b)
-        desc = "\n\n".join(clean)
+        # desc = (
+        #     des.replace("<li>", "-")
+        #     .replace("<strong>", "[b]")
+        #     .replace("</strong>", "[/b]")
+        # )
+        # sdesc = desc.split("</p>")
+        # clean = []
+        # for p in sdesc:
+        #     a = re.sub(r"<.*?>", "", p, flags=re.M)
+        #     b = re.sub(r"[\s]{2,}", "", a, flags=re.M)
+        #     clean.append(b)
+        # desc = "\n\n".join(clean)
 
-        hide_string = "[hide]" if HIDE else ""
-        hide_end_string = "[/hide]" if HIDE else ""
+        # hide_string = "[hide]" if HIDE else ""
+        # hide_end_string = "[/hide]" if HIDE else ""
 
-        cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\
-\n\n\
-{hide_string}\
-[url=#][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
-{hide_end_string}\
-\n[html]<script>var linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}';document.querySelector('.bbc_link').href=linko;</script>[/html]\
-\n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support![/sub]"
+        cdesc = f"<img loading='lazy' src='{img}' alt='JavaScript Fundamentals to Advanced: Full Stack Development' class='bbc_img resized'>\
+        <br>\
+            {des}\
+<br><br>\
+<a href='#' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/enroll-udemy.png' alt='Button to link to the udemy course' class='bbc_img resized'></a>\
+<a href='https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&amp;utm_campaign=more-udemy-coupons' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/more-udemy-coupons.png' alt='Check more free udemy coupons' class='bbc_img resized'></a>\
+<br><script>var linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}';document.querySelector('.bbc_link').href=linko;</script>[/html]\
+<br><br><br><sub>Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support!</sub>"
 
         return cdesc
 
