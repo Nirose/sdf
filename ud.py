@@ -211,8 +211,9 @@ class Udemy:
         cdesc = f"[img alt={alt}]{img}[/img]\n\n{desc}\
 \n\n\
 {hide_string}\
-[url={rand.choice([UD_AF, UD_FA])}{quote(link)}][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
+[url=#][img alt=Button to link to the udemy course]https://www.jucktion.com/forum/uploads/enroll-udemy.png[/img][/url][url=https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&utm_campaign=more-udemy-coupons][img alt=Button to check more free udemy coupons]https://www.jucktion.com/forum/uploads/more-udemy-coupons.png[/img][/url]\
 {hide_end_string}\
+\[html]<script>var linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}';document.querySelector('.bbc_link').href=linko;</script>[/html]\
 \n\n\n[sub]Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support![/sub]"
 
         return cdesc
