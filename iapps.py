@@ -6,6 +6,7 @@ import threading
 
 # from datetime import datetime
 import re
+from tokenize import String
 from lxml import html
 
 # import requests
@@ -54,8 +55,11 @@ class apptoForum:
         self.unique = set()
         self.newApps = set()
         self.oldApps = self.getID()
+        self.session = cloudscraper.create_scraper()
         self.scraper = cloudscraper.create_scraper(
-            browser={"browser": "firefox", "platform": "windows", "mobile": False}
+            browser={"browser": "firefox", "platform": "windows", "mobile": False},
+            interpreter="nodejs",
+            sess=self.session,
         )
         with requests.get(
             "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
@@ -113,14 +117,14 @@ class apptoForum:
         # isn = "https://www.iosnoops.com/iphone-ipad-deals/all/free/all/"
         adv = "https://appadvice.com/apps-gone-free"
         yo = "https://yofreesamples.com/entertainment-freebies/free-apple-app-store-iphone-ipad-apps-today/"
-        t1 = threading.Thread(target=self.getAppAddict, args=(aad,))
+        # t1 = threading.Thread(target=self.getAppAddict, args=(aad,))
         t2 = threading.Thread(target=self.getYoApps, args=(yo,))
         t3 = threading.Thread(target=self.appadvice, args=(adv,))
 
-        try:
-            t1.start()
-        except Exception:
-            print("Appaddict Failed")
+        # try:
+        #     t1.start()
+        # except Exception:
+        #     print("Appaddict Failed")
         try:
             t2.start()
         except Exception:
@@ -130,7 +134,7 @@ class apptoForum:
         except Exception:
             print("Appadvice failed")
 
-        t1.join()
+        # t1.join()
         t2.join()
         t3.join()
 
@@ -341,17 +345,18 @@ class apptoForum:
             link = "https://apps.apple.com/us/app/id" + str(appid)
             try:
                 print(link)
-                try:
-                    self.addtoDB(appid, price)
-                except Exception:
-                    print("Skipping, Database error Found")
-                    continue
                 re = self.scraper.get(link)
+                if DEBUG:
+                    with open("debug/app.html", "w", encoding="utf-8") as f:
+                        f.write(re.text)
                 if "<title>" in re.text:
                     tree = html.fromstring(re.text)
-                    title = tree.xpath(
-                        '//h1[@class="product-header__title app-header__title"]/text()'
-                    )[0].strip()
+                    title = (
+                        tree.xpath("//meta[contains(@name,'apple:title')]/@content")[0]
+                        .split(" - App Store")[0]
+                        .strip()
+                    )
+                    # print(title)
                     ptitle = (
                         "[iOS] "
                         + title.encode("ascii", "ignore").decode("ascii")
@@ -361,25 +366,15 @@ class apptoForum:
                     )
                     img = str(
                         tree.xpath(
-                            '(//picture[contains(@class,"we-artwork--screenshot")]//source/@srcset)[1]'
+                            '(//div[contains(@class,"portrait")]/picture/source/@srcset)[1]'
                         )
                     )
+                    img = img.split(" ")[-2].split("314w,")[1]
                     # print(img)
-                    img = img.split(" ")[-2]
-                    # img = str(tree.xpath(
-                    #     '//div[@class="we-screenshot-viewer__screenshots"]//source[@class="we-artwork__source"][1]/@srcset')).split(' ')[-5].split(",")[1]
-                    # test image
-                    # print(tree.xpath(
-                    #     '//div[@class="we-screenshot-viewer__screenshots"]//source[@class="we-artwork__source"][1]/@srcset'))
-                    # print(str(tree.xpath(
-                    #     '//div[@class="we-screenshot-viewer__screenshots"]//source[@class="we-artwork__source"][1]/@srcset')).split(' ')[-5])
-                    # print(str(tree.xpath(
-                    #     '//div[@class="we-screenshot-viewer__screenshots"]//source[@class="we-artwork__source"][1]/@srcset')).split(' ')[-5].split(",")[1])
-                    # print(img)
-                    # break
                     description = tree.xpath(
-                        '//div[@class="section__description"]//p/text()'
+                        '//section/article//span[contains(@class,"multiline-clamp__text")]/text()[1]'
                     )
+                    # print(description)
                     desc = (
                         "\n\n".join(description)
                         .encode("ascii", "ignore")
@@ -420,6 +415,11 @@ class apptoForum:
                         value="#post_confirm_buttons .button_submit",
                     )
                     dr.execute_script("arguments[0].click()", ele)
+                    try:
+                        self.addtoDB(appid, price)
+                    except Exception:
+                        print("Skipping, Database error Found")
+                        continue
                     print("Waiting half minutes...")
                     time.sleep(30)
                     # Add the ID to the db
