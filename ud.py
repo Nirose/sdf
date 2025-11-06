@@ -1,20 +1,21 @@
+import concurrent.futures
+import json
+import logging
 import os
-from lxml import html, etree
+import random as rand
 import re as regex
 import threading
-from urllib.parse import urlparse, parse_qs, quote
-import json
-import traceback
-import logging
-import dbc
-import psycopg
-from psycopg import sql as query
 import time
+import traceback
 from datetime import datetime
-import concurrent.futures
-import cloudscraper
-import random as rand
+from urllib.parse import parse_qs, quote, urlparse
 
+import cloudscraper
+import psycopg
+from lxml import etree, html
+from psycopg import sql as query
+
+import dbc
 
 # print(os.environ)
 PUBOLD = "1 hour"
@@ -42,16 +43,16 @@ except KeyError:
     from secrets import (
         DEBUG,
         DEPLOYED,
-        UD_CS,
-        UD_IH,
-        UD_FG,
-        UD_DU,
+        HIDE,
         PRXY,
-        USE_PRXY,
         THREADS,
         UD_AF,
+        UD_CS,
+        UD_DU,
         UD_FA,
-        HIDE,
+        UD_FG,
+        UD_IH,
+        USE_PRXY,
     )
 
 if DEBUG:
@@ -213,7 +214,7 @@ class Udemy:
             {des}\
 <br><br>\
 <a href='#' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/enroll-udemy.png' alt='Link to enroll in {alt}' class='bbc_img resized'></a><a href='https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&amp;utm_campaign=more-udemy-coupons' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/more-udemy-coupons.png' alt='Check more free udemy coupons' class='bbc_img resized'></a>\
-<br><script>let linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}';</script>\
+<br><script>let linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}&subId1=forum';</script>\
 <br><br><br><sub>Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support!</sub>"
 
         return cdesc
