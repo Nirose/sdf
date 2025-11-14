@@ -1,28 +1,29 @@
-import time
 import json
-
-# from multiprocessing.dummy import Pool as ThreadPool
-import threading
+import logging
+import os
 
 # from datetime import datetime
 import re
+
+# from multiprocessing.dummy import Pool as ThreadPool
+import threading
+import time
+import traceback
 from tokenize import String
+from urllib.parse import urlparse
+
+import cloudscraper
+import psycopg
+import requests
 from lxml import html
+from psycopg import sql as query
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 
 # import requests
 import dbc
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-import traceback
-import logging
-from urllib.parse import urlparse
-import os
-import psycopg
-from psycopg import sql as query
-import requests
-import cloudscraper
 
 try:
     USER = os.getenv("A_U")
@@ -31,7 +32,9 @@ try:
     DEBUG = int(os.environ["DEBUG"])
 
 except Exception:
-    from secrets import A_U as USER, A_P as PASSWORD, DEPLOYED, DEBUG
+    from secrets import A_P as PASSWORD
+    from secrets import A_U as USER
+    from secrets import DEBUG, DEPLOYED
 
 if DEBUG:
     logging.basicConfig(
@@ -90,6 +93,8 @@ class apptoForum:
         self.chrome()
         driver = self.d
         driver.get("https://www.jucktion.com/f/login?type=auto")
+        # with open("debug/apps.html", "w", encoding="utf-8") as f:
+        #     f.write(driver.page_source)
         cookie = {"name": "jktn_selenium", "value": "apps", "domain": ".jucktion.com"}
         driver.add_cookie(cookie)
         driver.find_elements(by=By.NAME, value="user")[1].send_keys(self.user)
