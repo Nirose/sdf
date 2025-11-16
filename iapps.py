@@ -493,18 +493,33 @@ if __name__ == "__main__":
 
     # POST STARTER
     listed = t.removegetAdd()
-
-    if listed:
-        t.login()
-        try:
-            t.posttoForum(listed)
-        except Exception:
-            logging.error(traceback.format_exc())
-        finally:
-            t.stop()
-        end = time.perf_counter()
+    if not DEPLOYED:
+        if listed:
+            t.login()
+            try:
+                t.posttoForum(listed)
+            except Exception:
+                logging.error(traceback.format_exc())
+            finally:
+                t.stop()
+            end = time.perf_counter()
+        else:
+            end = time.perf_counter()
     else:
-        end = time.perf_counter()
+        from pyvirtualdisplay import Display
+
+        with Display(visible=0, size=(1024, 768)) as disp:
+            if listed:
+                t.login()
+                try:
+                    t.posttoForum(listed)
+                except Exception:
+                    logging.error(traceback.format_exc())
+                finally:
+                    t.stop()
+                end = time.perf_counter()
+            else:
+                end = time.perf_counter()
 
     # CHECK THE DATA
     # print('Unique: ', t.unique)
