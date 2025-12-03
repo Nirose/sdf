@@ -213,7 +213,7 @@ class Udemy:
         <br>\
             {des}\
 <br><br>\
-<a href='#' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/enroll-udemy.png' alt='Link to enroll in {alt}' class='bbc_img resized'></a><a href='https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&amp;utm_campaign=more-udemy-coupons' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/more-udemy-coupons.png' alt='Check more free udemy coupons' class='bbc_img resized'></a>\
+<a href='#' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/enroll-udemy.png' alt='Link to enroll in {alt}' class='bbc_img resized'></a><a href='https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&amp;utm_campaign=more-udemy-coupons' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/more-udemy-coupons.png' alt='Check more free udemy coupons' class='bbc_img resized linker'></a>\
 <br><script>let linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}&subId1=forum';</script>\
 <br><br><br><sub>Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support!</sub>"
 
