@@ -1,25 +1,26 @@
-import time
 import json
-from multiprocessing.dummy import Pool as ThreadPool
-import threading
-import re
-from lxml import html, etree
-import requests
+import logging
+import os
 import random
-import psycopg
-from psycopg import sql as query
+import re
+import threading
+import time
+import traceback
+from multiprocessing.dummy import Pool as ThreadPool
+
 import cloudscraper
+import psycopg
+import requests
+from amazon_paapi import AmazonApi
+from lxml import etree, html
+from psycopg import sql as query
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 
 # import pyperclip
 import dbc
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-import traceback
-import logging
-import os
-from amazon_paapi import AmazonApi
 
 try:
     AMZKEY = os.getenv("AMZKEY")
@@ -32,14 +33,18 @@ try:
     PULL = os.environ["PULL"]
 except Exception:
     from secrets import (
-        K_U as USER,
-        K_P as PASSWORD,
         AMZKEY,
         AMZSECRET,
-        THROTTLE,
-        DEPLOYED,
         DEBUG,
+        DEPLOYED,
         PULL,
+        THROTTLE,
+    )
+    from secrets import (
+        K_P as PASSWORD,
+    )
+    from secrets import (
+        K_U as USER,
     )
 
 if DEBUG:
@@ -570,11 +575,11 @@ class booktoForum:
                             else:
                                 title = (
                                     driver.find_element(
-                                        by=By.XPATH, value='//h1[@id="ebooksTitle"]'
+                                        by=By.XPATH, value='//h1[@id="title"]'
                                     ).text
                                     if (
                                         driver.find_elements(
-                                            by=By.CSS_SELECTOR, value="#ebooksTitle"
+                                            by=By.CSS_SELECTOR, value="h1#title"
                                         )
                                     )
                                     else driver.find_element(
