@@ -448,7 +448,7 @@ class Udemy:
         collection = []
         tree = html.fromstring(bytes(re.text, encoding="utf-8"))
         for e in tree.xpath('//a[contains(text(),"Enroll Now")]/@href'):
-            url = e.split("murl=")[1]
+            url = e.split("u=")[1]
             collection.append(f"{url}")
         logging.info(f"IH Links found: {len(collection)}")
 
