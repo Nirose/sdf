@@ -779,7 +779,6 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
         print(f"New found: {len(listed)}")
         if listed > 0:
             task.login()
-
             try:
                 task.posttoForum(listed)
             except Exception:
@@ -813,8 +812,8 @@ if __name__ == "__main__":
 
     from pyvirtualdisplay import Display
 
-    if not DEPLOYED:
-        if len(listed) > 0:
+    if len(listed) > 0:
+        if not DEPLOYED:
             task.login()
             try:
                 task.posttoForum(listed)
@@ -825,10 +824,7 @@ if __name__ == "__main__":
             finally:
                 task.stop()
         else:
-            pass
-    else:
-        with Display(visible=0, size=(1024, 768)) as disp:
-            if len(listed) > 0:
+            with Display(visible=0, size=(1024, 768)) as disp:
                 task.login()
                 try:
                     task.posttoForum(listed)
@@ -838,8 +834,8 @@ if __name__ == "__main__":
                     task.stop()
                 finally:
                     task.stop()
-            else:
-                pass
+    else:
+        pass
 
     end = time.time()
     # msg.push('l', 'ct', "Automations", f"Book posting completed in {round((end-start)/60,2)} minutes",
