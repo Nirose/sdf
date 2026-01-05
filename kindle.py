@@ -31,15 +31,9 @@ try:
     PASSWORD = os.getenv("K_P")
     DEBUG = int(os.environ["DEBUG"])
     PULL = os.environ["PULL"]
+    BOB = os.environ["BOB"]
 except Exception:
-    from secrets import (
-        AMZKEY,
-        AMZSECRET,
-        DEBUG,
-        DEPLOYED,
-        PULL,
-        THROTTLE,
-    )
+    from secrets import AMZKEY, AMZSECRET, DEBUG, DEPLOYED, PULL, THROTTLE, BOB
     from secrets import (
         K_P as PASSWORD,
     )
@@ -301,8 +295,8 @@ class booktoForum:
             logging.info((f"Bookzio: {len(links)} found"))
         else:
             print(f"Bookzio: {len(links)} found")
-        pool = ThreadPool(15)
-        pool.starmap(self.zio, zip(links))
+        with ThreadPool(15) as pool:
+            pool.starmap(self.zio, zip(links))
 
     # HUKD
     def hukd(self, id):
@@ -351,11 +345,7 @@ class booktoForum:
             ):  # Check if "kindle" is in the title (case insensitive)
                 link = item.find("link").text
                 links.append(link)
-        # Using HTML (old)
-        # tree = html.fromstring(hr.text)
-        # links = tree.xpath(
-        #     '//a[contains(@class,"thread-title--list")][contains(@title,"kindle")]/@href|//a[contains(@class,"thread-title--list")][contains(@title,"Kindle")]/@href'
-        # )
+
         if DEPLOYED:
             logging.info(f"HUKD: {len(links)} found")
         else:
@@ -370,22 +360,50 @@ class booktoForum:
         for t in threads:
             t.join()  # loop through all the threads and wait for them to finish
 
+    def getbob(self, url):
+        headers = {"User-Agent": "Twitterbot/1.0"}
+        rq = requests.get(
+            BOB,
+            headers=headers,
+        )
+        if DEBUG and not DEPLOYED:
+            with open("debug/bub.json", "w", encoding="utf-8") as file:
+                file.write(rq.text)
+
+        js = json.loads(rq.text)
+
+        bobs = [j["availabilities"][0]["url"] for j in js["books"]]
+        print(f"BUB: {len(bobs)}")
+        with ThreadPool(15) as pool:
+            pool.starmap(self.bob, zip(bobs))
+
+    def bob(self, url):
+        rq = requests.get(url)
+        asin = re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(rq.url))
+        self.newAsins.add(asin[0])
+
     def removegetAdd(self):
         self.deleteOld()
         amz = f"{PULL}https://www.amazon.com/amz-books/book-deals"
         burl = "https://www.bookzio.com/latest-book-deals/"
         hurl = "https://www.hotukdeals.com/rss/tag/freebies"
+        bburl = BOB
         # open('books.txt', 'w').close()
 
-        t1 = threading.Thread(target=self.amazon, args=(amz,))
-        t2 = threading.Thread(target=self.bookzio, args=(burl,))
+        t1 = threading.Thread(target=self.bookzio, args=(burl,))
+        t2 = threading.Thread(target=self.amazon, args=(amz,))
         t3 = threading.Thread(target=self.getHUKD, args=(hurl,))
+        t4 = threading.Thread(target=self.getbob, args=(bburl,))
+
         t1.start()
         t2.start()
         t3.start()
+        t4.start()
+
         t1.join()
         t2.join()
         t3.join()
+        t4.join()
 
         # print(self.oldAsins)
         # print(self.newAsins)

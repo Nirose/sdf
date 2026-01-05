@@ -17,6 +17,7 @@ env: # Or as an environment variable
       DEPLOYED: ${{ secrets.DEPLOYED}}
       DEBUG: ${{ secrets.DEBUG}}
       PULL: ${{ secrets.PULL}}
+      BOB: ${{ secrets.BOB}}
 jobs:
   cron:
     runs-on: ubuntu-latest
