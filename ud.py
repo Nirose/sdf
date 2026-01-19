@@ -12,6 +12,7 @@ from urllib.parse import parse_qs, quote, urlparse
 
 import cloudscraper
 import psycopg
+import requests
 from lxml import etree, html
 from psycopg import sql as query
 
@@ -260,6 +261,7 @@ class Udemy:
             newtitle = (
                 f"{details['title'].replace('&', 'and')} ({details['price']} to FREE)"
             )
+            telink = f"https://trk.udemy.com/c/6563906/3301956/39854?u={quote(details['link'])}&subId1=telegram"
             # format cid,price,image,title,desc,pub,link
             data = [
                 details["id"],
@@ -272,7 +274,21 @@ class Udemy:
                 source,
             ]
             # print(data)
+            #
             self.addtoDB(data)
+
+            pdata = {
+                "chat_id": CHATID,
+                "text": newtitle,
+                "reply_markup": {
+                    "inline_keyboard": [[{"text": "Enroll on Udemy", "url": telink}]]
+                },
+            }
+            channel = f"https://api.telegram.org/bot{BOT}/sendMessage"
+            try:
+                requests.post(channel, json=pdata)
+            except Exception as e:
+                print("Telegram Post Exception logged", e)
 
     def createPages(self, url: str, kind: str):
         # get course details for the current url
