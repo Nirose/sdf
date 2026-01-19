@@ -284,7 +284,7 @@ class Udemy:
                     "inline_keyboard": [[{"text": "Enroll on Udemy", "url": telink}]]
                 },
             }
-            channel = f"https://api.telegram.org/bot{BOT}/sendMessage"
+            channel = f"https://api.telegram.org/bot{BOT}/sendPhoto"
             try:
                 requests.post(channel, json=pdata)
             except Exception as e:
