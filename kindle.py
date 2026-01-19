@@ -779,7 +779,7 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                                 price=ogprice,
                                 sale=price,
                             )
-                            self.sendTG(title=cleantitle, asin=asin, image=img)
+                            self.sendTG(title=title, asin=asin, image=img)
                             # scr = f"document.getElementsByName('message')[0].innerHTML = {json.dumps(desc)};"
                             # print(scr)
                             if driver.find_elements(by=By.NAME, value="subject"):
