@@ -261,7 +261,6 @@ class Udemy:
             newtitle = (
                 f"{details['title'].replace('&', 'and')} ({details['price']} to FREE)"
             )
-            telink = f"https://trk.udemy.com/c/6563906/3301956/39854?u={quote(details['link'])}&subId1=telegram"
             # format cid,price,image,title,desc,pub,link
             data = [
                 details["id"],
@@ -274,12 +273,13 @@ class Udemy:
                 source,
             ]
             # print(data)
-            #
             self.addtoDB(data)
 
+            telink = f"https://trk.udemy.com/c/6563906/3301956/39854?u={quote(details['link'])}&subId1=telegram"
             pdata = {
                 "chat_id": CHATID,
-                "text": newtitle,
+                "photo": details["image"],
+                "caption": newtitle,
                 "reply_markup": {
                     "inline_keyboard": [[{"text": "Enroll on Udemy", "url": telink}]]
                 },
