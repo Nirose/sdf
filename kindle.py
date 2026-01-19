@@ -31,9 +31,11 @@ try:
     PASSWORD = os.getenv("K_P")
     DEBUG = int(os.environ["DEBUG"])
     PULL = os.environ["PULL"]
+    BOT = os.environ["BOT"]
     BOB = os.environ["BOB"]
+    CHATID = os.environ["CHATID"]
 except Exception:
-    from secrets import AMZKEY, AMZSECRET, DEBUG, DEPLOYED, PULL, THROTTLE, BOB
+    from secrets import AMZKEY, AMZSECRET, BOB, DEBUG, DEPLOYED, PULL, THROTTLE
     from secrets import (
         K_P as PASSWORD,
     )
@@ -172,6 +174,27 @@ class booktoForum:
                     cur.close()
         finally:
             self.conn.putconn(send)
+
+    def sendTG(
+        self,
+        title: str,
+        asin: str,
+        image: str,
+    ):
+        telink = f"https://amazon.com/dp/{asin}?tag=telefeed-20"
+        pdata = {
+            "chat_id": CHATID,
+            "photo": image,
+            "caption": title,
+            "reply_markup": {
+                "inline_keyboard": [[{"text": "Get it on Amazon", "url": telink}]]
+            },
+        }
+        channel = f"https://api.telegram.org/bot{BOT}/sendPhoto"
+        try:
+            requests.post(channel, json=pdata)
+        except Exception as e:
+            print("Telegram Post Exception logged", e)
 
     def addtoDB(self, asin, title, image, desc, price, sale):
         val = f"('{asin}','https://www.amazon.com/dp/{asin}','{title.replace("'", '')}','{image}','{desc.replace("'", '')}','{price}','{sale}')"
@@ -756,6 +779,7 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                                 price=ogprice,
                                 sale=price,
                             )
+                            self.sendTG(title=cleantitle, asin=asin, image=img)
                             # scr = f"document.getElementsByName('message')[0].innerHTML = {json.dumps(desc)};"
                             # print(scr)
                             if driver.find_elements(by=By.NAME, value="subject"):
