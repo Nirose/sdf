@@ -11,7 +11,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 import cloudscraper
 import psycopg
 import requests
-from amazon_paapi import AmazonApi
+from amazon_creatorsapi import AmazonCreatorsApi, Country
 from lxml import etree, html
 from psycopg import sql as query
 from selenium import webdriver
@@ -51,7 +51,7 @@ if DEBUG:
         level=logging.INFO,
     )
 
-amazon = AmazonApi(AMZKEY, AMZSECRET, "arnz-20", "US", throttling=int(THROTTLE))
+amazon = AmazonCreatorsApi(credential_id=AMZKEY, credential_secret=AMZSECRET,version="2.2", tag="arnz-20", country=Country.US, throttling=int(THROTTLE))
 # from pushbullet import PB as pb
 
 # # Create database.
@@ -116,8 +116,8 @@ class booktoForum:
         # options.add_argument("user-data-dir=C:\\Users\\Administrator\\Desktop\\J\\Chrome\\profile");
         options.add_argument("log-level=1")
         if not DEPLOYED:
-            options.binary_location = os.getenv("CHROME")
-            s = Service(executable_path=os.getenv("CHROMEDRIVER"))
+            options.binary_location = "/usr/bin/chromium"
+            s = Service(executable_path= "/usr/bin/chromedriver")
             self.d = webdriver.Chrome(service=s, options=options)
         else:
             options.binary_location = "/usr/bin/chromium-browser"
@@ -771,14 +771,18 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                             )
 
                             time.sleep(2)
-                            self.addtoDB(
-                                asin=asin,
-                                title=cleantitle,
-                                image=img,
-                                desc=desc,
-                                price=ogprice,
-                                sale=price,
-                            )
+                            try:
+                                self.addtoDB(
+                                    asin=asin,
+                                    title=cleantitle,
+                                    image=img,
+                                    desc=desc,
+                                    price=ogprice,
+                                    sale=price,
+                                )
+                            except Exception:
+                                logging.error(traceback.format_exc())
+                                print("Problem adding to db, ", link)
                             self.sendTG(title=title, asin=asin, image=img)
                             # scr = f"document.getElementsByName('message')[0].innerHTML = {json.dumps(desc)};"
                             # print(scr)
@@ -852,8 +856,6 @@ if __name__ == "__main__":
     if DEBUG:
         print(f"New found {len(listed)}")
 
-    from pyvirtualdisplay import Display
-
     if len(listed) > 0:
         if not DEPLOYED:
             task.login()
@@ -866,6 +868,7 @@ if __name__ == "__main__":
             finally:
                 task.stop()
         else:
+            from pyvirtualdisplay import Display
             with Display(visible=0, size=(1024, 768)) as disp:
                 task.login()
                 try:
