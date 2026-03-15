@@ -7,7 +7,7 @@ import threading
 import time
 import traceback
 from multiprocessing.dummy import Pool as ThreadPool
-
+from concurrent.futures import ThreadPoolExecutor
 import cloudscraper
 import psycopg
 import requests
@@ -127,8 +127,8 @@ class booktoForum:
         print("Chrome Browser Invoked")
 
     def stop(self):
-        driver = self.d
-        driver.quit()
+        self.d.quit()
+        self.conn.close()
 
     def login(self):
         # Init Chrome
@@ -254,29 +254,12 @@ class booktoForum:
 
         links = 0
 
-        # tree = html.fromstring(str(ar.content))
-        # search = tree.xpath(
-        #     '//div[starts-with(@id, "B")]/a[contains(@class,"a-link-normal")]'
-        # )
-        # if len(search) == 0:
-        #     search = tree.xpath(
-        #         '//div[@class="zg-grid-general-faceout"]/div/a[@class="a-link-normal"][1]'
-        #     )
-
         asins = re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(ar.content))
 
         for asin in asins:
             self.newAsins.add(asin)
             links += 1
 
-        # for elm in search:
-        #     asin = re.findall(r"B[0-9A-Z]{9,9}", str(elm.xpath("@href")[0]))[0]
-        #     # link = "https://www.amazon.com" + re.sub(
-        #     #     r"\/ref.+", "", str(elm.xpath("@href")[0])
-        #     # )
-        #     # print(asin)
-        #     self.newAsins.add(asin)
-        #     links += 1
         if DEPLOYED:
             logging.info((f"Amazon: {links} found"))
         else:
@@ -288,19 +271,14 @@ class booktoForum:
         f = requests.get(run, headers=self.headers)
 
         amz = html.fromstring(f.text)
-        asin = re.findall(
-            r"B[0-9A-Z]{9,9}", amz.xpath('//div/a[text()="Amazon USA"]/@href')[0]
-        )[0]
-        logging.info(f"{run}, {asin}")
-        self.newAsins.add(asin)
-        # for elm in amz.xpath('//div/a[text()="Amazon USA"]/@href'):
-        #     ar = self.scraper.get(elm).url
-        #     if DEBUG:
-        #         logging.info(f"{elm},{ar}")
-        #     asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
-        #     # link = elm.xpath("@href")[0]
-        #     # print(asin)
-        #     self.newAsins.add(asin)
+        try:
+            rq = self.scraper.get(amz.xpath('//div/a[text()="Amazon USA"]/@href')[0]).url
+            asin = re.findall(
+                r"B[0-9A-Z]{9,9}", rq)[0]
+            logging.info(f"ZIO: {run}, {asin}")
+            self.newAsins.add(asin)
+        except Exception as e:
+            logging.info(f"Failed: {run}, {e}")
 
     # bookzio
 
@@ -318,9 +296,11 @@ class booktoForum:
             logging.info((f"Bookzio: {len(links)} found"))
         else:
             print(f"Bookzio: {len(links)} found")
-        with ThreadPool(15) as pool:
-            pool.starmap(self.zio, zip(links))
-
+        try:
+            with ThreadPool(15) as pool:
+                pool.starmap(self.zio, zip(links))
+        except Exception as e:
+            logging.info('Threading failed at bookzio')
     # HUKD
     def hukd(self, id):
         url = str("https://www.hotukdeals.com/visit/thread/" + id)
@@ -329,7 +309,7 @@ class booktoForum:
             try:
                 asin = re.findall(r"B[0-9A-Z]{9,9}", ar)[0]
                 if DEBUG:
-                    logging.info(f"{ar}, {asin}")
+                    logging.info(f"HUKD: {ar}, {asin}")
                 self.newAsins.add(asin)
             except IndexError:
                 print("Skipping (HUKD): ", ar)
@@ -341,22 +321,6 @@ class booktoForum:
         if DEBUG and not DEPLOYED:
             with open("debug/hukd.html", "w", encoding="utf-8") as f:
                 f.write(hr.text)
-        # Using regex
-        # matches = re.findall(
-        #     r"(?<=amazon.co.uk\/dp\/).+?(?=\#customerReviews)", hr.text
-        # )
-
-        # if DEPLOYED:
-        #     logging.info(f"HUKD: {len(matches)} found")
-        # else:
-        #     print(f"HUKD: {len(matches)} found")
-
-        # for m in matches:
-        #     try:
-        #         # print(ar, asin)
-        #         self.newAsins.add(m)
-        #     except IndexError:
-        #         print("Skipping: ", m)
 
         root = etree.fromstring(hr.text.encode("utf-8"))
 
@@ -373,15 +337,12 @@ class booktoForum:
             logging.info(f"HUKD: {len(links)} found")
         else:
             print(f"HUKD: {len(links)} found")
-        threads = list()  # make a thread list
-        for i in links:
-            # start the threading with external function parse
-            x = threading.Thread(target=self.hukd, args=(i.split("-")[-1],))
-            threads.append(x)  # count the threads
-            x.start()  # start the threads
 
-        for t in threads:
-            t.join()  # loop through all the threads and wait for them to finish
+        try:
+            with ThreadPoolExecutor() as executor:
+                futures = [executor.submit(self.hukd, i.split("-")[-1]) for i in links]
+        except Exception as e:
+            logging.info('Threading fail at getHUKD', e)
 
     def getbob(self, url):
         headers = {"User-Agent": "Twitterbot/1.0"}
@@ -397,12 +358,16 @@ class booktoForum:
 
         bobs = [j["availabilities"][0]["url"] for j in js["books"]]
         print(f"BUB: {len(bobs)}")
-        with ThreadPool(15) as pool:
-            pool.starmap(self.bob, zip(bobs))
+        try:
+            with ThreadPool(15) as pool:
+                pool.starmap(self.bob, zip(bobs))
+        except Exception as e:
+            logging.info('Threading fail at getbob', e)
 
     def bob(self, url):
         rq = requests.get(url)
         asin = re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(rq.url))
+        logging.info(f'BOB: {asin}')
         self.newAsins.add(asin[0])
 
     def removegetAdd(self):
@@ -413,20 +378,11 @@ class booktoForum:
         bburl = BOB
         # open('books.txt', 'w').close()
 
-        t1 = threading.Thread(target=self.bookzio, args=(burl,))
-        t2 = threading.Thread(target=self.amazon, args=(amz,))
-        t3 = threading.Thread(target=self.getHUKD, args=(hurl,))
-        t4 = threading.Thread(target=self.getbob, args=(bburl,))
-
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-
-        t1.join()
-        t2.join()
-        t3.join()
-        t4.join()
+        with ThreadPoolExecutor() as executor:
+            f1 = executor.submit(self.bookzio, burl)
+            f2 = executor.submit(self.amazon, amz)
+            f3 = executor.submit(self.getHUKD, hurl)
+            f4 = executor.submit(self.getbob, bburl)
 
         # print(self.oldAsins)
         # print(self.newAsins)
@@ -466,7 +422,6 @@ class booktoForum:
         for i, asin in enumerate(listB):
             if asin not in self.oldAsins:
                 try:
-                    logging.info(f"https://www.amazon.com/dp/{str(asin)}")
                     link = "https://www.amazon.com/dp/" + str(asin)
                     logging.info(f"{i + 1} of {len(listB)}: {link}")
 
