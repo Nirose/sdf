@@ -30,6 +30,8 @@ try:
     UD_FG = os.environ["UD_FG"]
     UD_IH = os.environ["UD_IH"]
     UD_DU = os.environ["UD_DU"]
+    UD_FC = os.environ["UD_FC"]
+    UD_IC = os.environ["UD_IC"]
     UD_AF = os.environ["UD_AF"]
     UD_FA = os.environ["UD_FA"]
     DEBUG = int(os.environ["DEBUG"])
@@ -41,20 +43,7 @@ except KeyError:
     INTERVAL = 3600
     BOT = ""
     CHATID = ""
-    from secrets import (
-        DEBUG,
-        DEPLOYED,
-        HIDE,
-        PRXY,
-        THREADS,
-        UD_AF,
-        UD_CS,
-        UD_DU,
-        UD_FA,
-        UD_FG,
-        UD_IH,
-        USE_PRXY,
-    )
+    from secrets import *
 
 if DEBUG:
     logging.basicConfig(
@@ -304,6 +293,74 @@ class Udemy:
         else:
             logging.info("Coupon already checked! ")
 
+    def unique(self, url: str):
+        tag = urlparse(url).path.split("/")[2]
+        try:
+            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
+            check = f"{tag},{coupon}"
+            if check not in self.tags:
+                self.tags.add(check)
+                return True
+            else:
+                return False
+        except Exception:
+            return False
+
+    def verifyUdemy(self, url):
+        uurl = (
+            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
+        )
+        try:
+            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
+        except KeyError:
+            coupon = ""
+        # logging.info(uurl)
+        try:
+            response = (
+                self.scraper.get(uurl, proxies=self.proxy).text
+                if USE_PRXY
+                else self.scraper.get(uurl).text
+            )
+            # if DEBUG:
+            #     logging.info(f"First Response: {response}")
+            data = json.loads(response)
+            if "detail" not in data.keys():
+                uuurl = (
+                    "https://www.udemy.com/api-2.0/course-landing-components/"
+                    + str(data["id"])
+                    + "/me/?couponCode="
+                    + str(coupon)
+                    + "&components=buy_button"
+                )
+                logging.info(uuurl)  # check for the coupons validity
+                response = (
+                    self.scraper.get(uuurl, proxies=self.proxy).text
+                    if USE_PRXY
+                    else self.scraper.get(uuurl).text
+                )
+                # if DEBUG:
+                #     logging.info(f"Second Response: {response}")
+                try:
+                    data = json.loads(response)
+                    # logging.info(data) #JSON DATA
+                    return data["buy_button"]["button"]["is_free_with_discount"]
+                except Exception as e:
+                    logging.error(
+                        f"Response is not formatted: {response}, Exception: {e}"
+                    )
+                    return False
+
+            else:
+                logging.info(data)
+                return False
+        except Exception as e:
+            logging.error(f"Exception occured while trying to verify {e}")
+
+    def manageID(self):
+        # self.deleteOld()
+        self.cs(2)
+        self.newcourses = list(self.foundcourses.difference(self.oldcourses))
+
     def multiThread(self, threads: int, collection: list, function):
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
             futures = {executor.submit(function, url): url for url in collection}
@@ -459,73 +516,65 @@ class Udemy:
         else:
             logging.info("FG link already checked, skipping")
 
-    def unique(self, url: str):
-        tag = urlparse(url).path.split("/")[2]
-        try:
-            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
-            check = f"{tag},{coupon}"
-            if check not in self.tags:
-                self.tags.add(check)
-                return True
-            else:
-                return False
-        except Exception:
-            return False
+    def fc(self):
+        logging.info("Crawling FWC")
+        re = self.scraper.get(f"{UD_FC}")
+        #logging.info(re.text)
+        collection = []
+        tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
+        for e in tree.xpath('//item/link'):
+            if DEBUG:
+                logging.info(e.text)
+            collection.append(e.text)
+        logging.info(f"FWC Links found: {len(collection)}")
 
-    def verifyUdemy(self, url):
-        uurl = (
-            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
-        )
-        try:
-            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
-        except KeyError:
-            coupon = ""
-        # logging.info(uurl)
-        try:
-            response = (
-                self.scraper.get(uurl, proxies=self.proxy).text
-                if USE_PRXY
-                else self.scraper.get(uurl).text
-            )
-            # if DEBUG:
-            #     logging.info(f"First Response: {response}")
-            data = json.loads(response)
-            if "detail" not in data.keys():
-                uuurl = (
-                    "https://www.udemy.com/api-2.0/course-landing-components/"
-                    + str(data["id"])
-                    + "/me/?couponCode="
-                    + str(coupon)
-                    + "&components=buy_button"
+        self.multiThread(self.threads, collection, self.fcq)
+
+    def fcq(self, source: str):
+        if source not in self.oldlinks:
+            re = self.scraper.get(source)
+            try:
+                tree = html.fromstring(re.text).xpath(
+                    '//div/a[contains(@href,"couponCode")]/@href'
                 )
-                logging.info(uuurl)  # check for the coupons validity
-                response = (
-                    self.scraper.get(uuurl, proxies=self.proxy).text
-                    if USE_PRXY
-                    else self.scraper.get(uuurl).text
-                )
-                # if DEBUG:
-                #     logging.info(f"Second Response: {response}")
-                try:
-                    data = json.loads(response)
-                    logging.info(data)
-                    return data["buy_button"]["button"]["is_free_with_discount"]
-                except Exception as e:
-                    logging.error(
-                        f"Response is not formatted: {response}, Exception: {e}"
-                    )
-                    return False
+            except Exception:
+                print("Failed:", re.url)
+                logging.error(traceback.format_exc())
+            if tree:
+                url = tree[0]
+                if DEBUG:
+                    logging.info(url)
+                self.checkAdd(url, source)
+        else:
+            logging.info("FG link already checked, skipping")
 
-            else:
-                logging.info(data)
-                return False
-        except Exception as e:
-            logging.error(f"Exception occured while trying to verify {e}")
+    def ic(self):
+        logging.info("Crawling IDC")
+        re = self.scraper.get(f"{UD_IC}")
+        #logging.info(re.text)
+        collection = []
+        tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
+        for e in tree.xpath('//item/link'):
+            if DEBUG:
+                logging.info('/'.join(e.text.split('/')[:5])+'/')
+            collection.append('/'.join(e.text.split('/')[:5])+'/')
+        logging.info(f"IDC Links found: {len(collection)}")
 
-    def manageID(self):
-        # self.deleteOld()
-        self.cs(2)
-        self.newcourses = list(self.foundcourses.difference(self.oldcourses))
+        self.multiThread(self.threads, collection, self.icq)
+
+    def icq(self, source: str):
+        if source not in self.oldlinks:
+            print(f'Source: {source}')
+            try:
+                re = requests.get(source)
+                # print(re.url)
+                self.checkAdd(re.url, source)
+            except Exception:
+                print("Failed:", re.url)
+                logging.error(traceback.format_exc())
+        else:
+            logging.info("FG link already checked, skipping")
+
 
 
 if __name__ == "__main__":
@@ -533,7 +582,6 @@ if __name__ == "__main__":
     ud = Udemy()
     ud.deleteOld()
     ud.updateOld()
-    # ud.writeXML()
     # print(len(ud.oldcourses))
     # print(ud.oldcourses)
     # print(ud.rsscourses)
@@ -547,21 +595,28 @@ if __name__ == "__main__":
             ud.iv()
         except Exception as e:
             logging.error("IH website has failed", e)
+        try:
+            ud.ic()
+        except Exception as e:
+            logging.error("IDC website has failed", e)
+        try:
+            ud.fc()
+        except Exception as e:
+            logging.error("FWC website has failed", e)
         # try:
         #     ud.fg()
         # except Exception as e:
         #     logging.error("FG website has failed", e)
     else:
         try:
-            ud.cs(5)
+            ud.ic()
         except Exception as e:
-            logging.error("CS website has failed", e)
+            logging.error("IDC website has failed", e)
 
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
     # print(ud.newcourses)
     # ud.writeHTML()
-    # ud.writeXML()
     ud.closeSQL()
     end = time.perf_counter()
     print(
