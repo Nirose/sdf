@@ -290,64 +290,6 @@ class Udemy:
             except Exception as e:
                 print("Telegram Post Exception logged", e)
 
-    def createPages(self, url: str, kind: str):
-        # get course details for the current url
-        details = self.getUdeId(url)
-        notneeded = self.oldcourses.union(self.foundcourses)
-        if int(details["id"]) not in notneeded:
-            # add new course id to the list
-            self.foundcourses.add(int(details["id"]))
-            # add the new items to db
-            # format cid,price,image,title,desc,pub,link
-            data = [
-                details["id"],
-                details["price"],
-                details["image"],
-                details["title"],
-                details["desc"],
-                details["pub"],
-                details["link"],
-            ]
-            # print(data)
-            self.addtoDB(data)
-            now = datetime.utcnow()
-            rss = now.strftime("%a, %d %b %Y %H:%M:%S +0000")
-            if kind == "xml" or kind == "both":
-                self.xmlitems.append(
-                    """
-    <item>
-        <title><![CDATA["""
-                    + details["title"]
-                    + " "
-                    + details["price"]
-                    + """]]></title>
-        <description><![CDATA["""
-                    + details["title"]
-                    + """]]></description>
-        <link>"""
-                    + details["link"]
-                    + """</link>
-        <guid>https://www.udemy.com/course/"""
-                    + details["id"]
-                    + """</guid>
-        <pubDate>"""
-                    + rss
-                    + """</pubDate>
-    </item>"""
-                )
-
-            if kind == "html" or kind == "both":
-                self.htmlitems.append(
-                    '''
-                    <li><a target="_blank" href="'''
-                    + details["link"]
-                    + """">"""
-                    + details["title"]
-                    + details["price"]
-                    + """</a></li>
-                """
-                )
-
     def checkAdd(self, url: str, source: str):
         if self.unique(url):
             try:
@@ -414,14 +356,16 @@ class Udemy:
                 if USE_PRXY
                 else self.scraper.get(source, headers=self.headers).text
             )
-            q = regex.findall("""(?<=sf_offer_url = ')(.*)(?=';)""", rq)
+            q = regex.findall("""(?<=out.php?go=')(.*)(?=" class="btn_offer_block;)""", rq)
             try:
                 query = f"{UD_CS}/scripts/udemy/out.php?go=" + q[0]
-                # print(query)
+                if DEBUG:
+                    logging.info(query)
                 try:
                     re = self.scraper.get(query, headers=self.headers)
                     self.checkAdd(re.url, source)
-
+                    if DEBUG:
+                        logging.info(re.url)
                 except Exception as e:
                     print("Failed: ", query)
                     logging.error(traceback.format_exc(), e)
@@ -543,8 +487,8 @@ class Udemy:
                 if USE_PRXY
                 else self.scraper.get(uurl).text
             )
-            if DEBUG:
-                logging.info(f"First Response: {response}")
+            # if DEBUG:
+            #     logging.info(f"First Response: {response}")
             data = json.loads(response)
             if "detail" not in data.keys():
                 uuurl = (
@@ -560,8 +504,8 @@ class Udemy:
                     if USE_PRXY
                     else self.scraper.get(uuurl).text
                 )
-                if DEBUG:
-                    logging.info(f"Second Response: {response}")
+                # if DEBUG:
+                #     logging.info(f"Second Response: {response}")
                 try:
                     data = json.loads(response)
                     logging.info(data)
