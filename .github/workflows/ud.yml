@@ -3,47 +3,49 @@
 
 name: courses
 on:
- workflow_dispatch:
- schedule:
-   - cron: "*/35 * * * *"
+  workflow_dispatch:
+  schedule:
+    - cron: "*/35 * * * *"
 permissions: write-all
 env: # Or as an environment variable
-      DB_URL: ${{ secrets.DB_URL }}
-      CHATID: ${{ secrets.CHATID }}
-      BOT: ${{ secrets.BOT }}
-      DEPLOYED: ${{ secrets.DEPLOYED}}
-      DEBUG: ${{ secrets.DEBUG}}
-      UD_IH: ${{ secrets.UD_IH }}
-      UD_DU: ${{ secrets.UD_DU }}
-      UD_FG: ${{ secrets.UD_FG }}
-      UD_CS: ${{ secrets.UD_CS }}
-      UD_AF: ${{ secrets.UD_AF }}
-      UD_FA: ${{ secrets.UD_FA }}
-      PRXY: ${{ secrets.PRXY }}
-      USE_PRXY: ${{ secrets.USE_PRXY }}
-      THREADS: ${{ secrets.THREADS }}
-      HIDE: ${{ secrets.HIDE }}
+  DB_URL: ${{ secrets.DB_URL }}
+  CHATID: ${{ secrets.CHATID }}
+  BOT: ${{ secrets.BOT }}
+  DEPLOYED: ${{ secrets.DEPLOYED}}
+  DEBUG: ${{ secrets.DEBUG}}
+  UD_IH: ${{ secrets.UD_IH }}
+  UD_DU: ${{ secrets.UD_DU }}
+  UD_FG: ${{ secrets.UD_FG }}
+  UD_CS: ${{ secrets.UD_CS }}
+  UD_IC: ${{ secrets.UD_IC }}
+  UD_FC: ${{ secrets.UD_FC }}
+  UD_AF: ${{ secrets.UD_AF }}
+  UD_FA: ${{ secrets.UD_FA }}
+  PRXY: ${{ secrets.PRXY }}
+  USE_PRXY: ${{ secrets.USE_PRXY }}
+  THREADS: ${{ secrets.THREADS }}
+  HIDE: ${{ secrets.HIDE }}
 jobs:
   cron:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip uv
-        if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
-    - name: Setup WARP
-      uses: fscarmen/warp-on-actions@v1.3
-      with:
-        mode: client
-    - name: execute py script # run main.py
-      run: python ud.py
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip uv
+          if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
+      - name: Setup WARP
+        uses: fscarmen/warp-on-actions@v1.3
+        with:
+          mode: client
+      - name: execute py script # run main.py
+        run: python ud.py
 
     # - name: commit files
     #   run: |
@@ -51,12 +53,9 @@ jobs:
     #     git config user.name "github-actions[bot]"
     #     git add -A
     #     git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
-          
+
     # - name: push changes
     #   uses: ad-m/github-push-action@master
     #   with:
     #     github_token: ${{ secrets.GITHUB_TOKEN }}
     #     branch: ${{ github.ref }}
-
-
-
