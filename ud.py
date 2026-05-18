@@ -527,11 +527,15 @@ class Udemy:
         #     if DEBUG:
         #         logging.info(e.text)
         #     collection.append(e.text)
-        if re.status_code == 200:
-            data = json.loads(re.text)
-            for d in data['data']['children']:
-                if d['data']['selftext'].startswith('https'):
-                    collection.append(d['data']['selftext'])
+        try:
+            if re.status_code == 200:
+                data = json.loads(re.text)
+                for d in data['data']['children']:
+                    if d['data']['selftext'].startswith('https'):
+                        collection.append(d['data']['selftext'])
+        except Exception as e:
+            logging.error("FWC website has failed", e)
+            print("FWC website has failed", e)
         logging.info(f"FWC Links found: {len(collection)}")
 
         self.multiThread(self.threads, collection, self.fcq)
