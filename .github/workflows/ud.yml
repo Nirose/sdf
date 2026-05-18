@@ -21,6 +21,7 @@ env: # Or as an environment variable
   UD_FC: ${{ secrets.UD_FC }}
   UD_AF: ${{ secrets.UD_AF }}
   UD_FA: ${{ secrets.UD_FA }}
+  PULL: ${{ secrets.PULL }}
   PRXY: ${{ secrets.PRXY }}
   USE_PRXY: ${{ secrets.USE_PRXY }}
   THREADS: ${{ secrets.THREADS }}

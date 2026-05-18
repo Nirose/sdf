@@ -34,6 +34,7 @@ try:
     UD_IC = os.environ["UD_IC"]
     UD_AF = os.environ["UD_AF"]
     UD_FA = os.environ["UD_FA"]
+    PULL = os.environ["PULL"]
     DEBUG = int(os.environ["DEBUG"])
     PRXY = os.environ["PRXY"]
     USE_PRXY = int(os.environ["USE_PRXY"])
@@ -518,14 +519,19 @@ class Udemy:
 
     def fc(self):
         logging.info("Crawling FWC")
-        re = self.scraper.get(f"{UD_FC}")
+        re = self.scraper.get(f"{PULL}{UD_FC}")
         #logging.info(re.text)
         collection = []
-        tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
-        for e in tree.xpath('//item/link'):
-            if DEBUG:
-                logging.info(e.text)
-            collection.append(e.text)
+        # tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
+        # for e in tree.xpath('//item/link'):
+        #     if DEBUG:
+        #         logging.info(e.text)
+        #     collection.append(e.text)
+        if re.status_code == 200:
+            data = json.loads(re.text)
+            for d in data['data']['children']:
+                if d['data']['selftext'].startswith('https'):
+                    collection.append(d['data']['selftext'])
         logging.info(f"FWC Links found: {len(collection)}")
 
         self.multiThread(self.threads, collection, self.fcq)
@@ -550,7 +556,7 @@ class Udemy:
 
     def ic(self):
         logging.info("Crawling IDC")
-        re = self.scraper.get(f"{UD_IC}")
+        re = self.scraper.get(f"{PULL}{UD_IC}")
         #logging.info(re.text)
         collection = []
         tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
@@ -558,6 +564,7 @@ class Udemy:
             if DEBUG:
                 logging.info('/'.join(e.text.split('/')[:5])+'/')
             collection.append('/'.join(e.text.split('/')[:5])+'/')
+
         logging.info(f"IDC Links found: {len(collection)}")
 
         self.multiThread(self.threads, collection, self.icq)
@@ -609,9 +616,9 @@ if __name__ == "__main__":
         #     logging.error("FG website has failed", e)
     else:
         try:
-            ud.ic()
+            ud.fc()
         except Exception as e:
-            logging.error("IDC website has failed", e)
+            logging.error("FWC website has failed", e)
 
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
