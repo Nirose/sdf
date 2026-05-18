@@ -571,7 +571,7 @@ class Udemy:
 
     def icq(self, source: str):
         if source not in self.oldlinks:
-            print(f'Source: {source}')
+            #print(f'Source: {source}')
             try:
                 re = requests.get(source)
                 # print(re.url)
