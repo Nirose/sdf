@@ -531,12 +531,13 @@ class Udemy:
             if re.status_code == 200:
                 data = json.loads(re.text)
                 for d in data['data']['children']:
-                    if d['data']['selftext']:
+                    if 'selftext' in d['data']:
                         if d['data']['selftext'].startswith('https'):
-                            collection.append(d['data']['selftext'])
+                                collection.append(d['data']['selftext'])
+                                if DEBUG:
+                                    logging.info(d['data']['selftext'])
         except Exception as e:
             logging.error("FWC website has failed", e)
-            print("FWC website has failed", e)
         logging.info(f"FWC Links found: {len(collection)}")
 
         self.multiThread(self.threads, collection, self.fcq)
@@ -557,7 +558,7 @@ class Udemy:
                     logging.info(url)
                 self.checkAdd(url, source)
         else:
-            logging.info("FG link already checked, skipping")
+            logging.info("FWC link already checked, skipping")
 
     def ic(self):
         logging.info("Crawling IDC")
@@ -585,7 +586,7 @@ class Udemy:
                 print("Failed:", re.url)
                 logging.error(traceback.format_exc())
         else:
-            logging.info("FG link already checked, skipping")
+            logging.info("IDC link already checked, skipping")
 
 
 
