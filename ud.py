@@ -531,8 +531,9 @@ class Udemy:
             if re.status_code == 200:
                 data = json.loads(re.text)
                 for d in data['data']['children']:
-                    if d['data']['selftext'].startswith('https'):
-                        collection.append(d['data']['selftext'])
+                    if d['data']['selftext']:
+                        if d['data']['selftext'].startswith('https'):
+                            collection.append(d['data']['selftext'])
         except Exception as e:
             logging.error("FWC website has failed", e)
             print("FWC website has failed", e)
