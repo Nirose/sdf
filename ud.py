@@ -519,23 +519,24 @@ class Udemy:
 
     def fc(self):
         logging.info("Crawling FWC")
-        re = self.scraper.get(f"{PULL}{UD_FC}")
+        re = self.scraper.get(UD_FC)
         #logging.info(re.text)
         collection = []
-        # tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
-        # for e in tree.xpath('//item/link'):
-        #     if DEBUG:
-        #         logging.info(e.text)
-        #     collection.append(e.text)
         try:
             if re.status_code == 200:
-                data = json.loads(re.text)
-                for d in data['data']['children']:
-                    if 'selftext' in d['data']:
-                        if d['data']['selftext'].startswith('https'):
-                                collection.append(d['data']['selftext'])
-                                if DEBUG:
-                                    logging.info(d['data']['selftext'])
+                tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
+                for e in tree.xpath('//item/link'):
+                    if DEBUG:
+                        logging.info(e.text)
+                    collection.append(e.text)
+            # if re.status_code == 200:
+            #     data = json.loads(re.text)
+            #     for d in data['data']['children']:
+            #         if 'selftext' in d['data']:
+            #             if d['data']['selftext'].startswith('https'):
+            #                     collection.append(d['data']['selftext'])
+            #                     if DEBUG:
+            #                         logging.info(d['data']['selftext'])
         except Exception as e:
             logging.error("FWC website has failed", e)
         logging.info(f"FWC Links found: {len(collection)}")
