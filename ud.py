@@ -184,21 +184,6 @@ class Udemy:
 
         alt = re.sub(r"\[.*?\]", "", title)
         alt = alt.strip()
-        # desc = (
-        #     des.replace("<li>", "-")
-        #     .replace("<strong>", "[b]")
-        #     .replace("</strong>", "[/b]")
-        # )
-        # sdesc = desc.split("</p>")
-        # clean = []
-        # for p in sdesc:
-        #     a = re.sub(r"<.*?>", "", p, flags=re.M)
-        #     b = re.sub(r"[\s]{2,}", "", a, flags=re.M)
-        #     clean.append(b)
-        # desc = "\n\n".join(clean)
-
-        # hide_string = "[hide]" if HIDE else ""
-        # hide_end_string = "[/hide]" if HIDE else ""
 
         cdesc = f"<img loading='lazy' src='{img}' alt='{alt}' class='bbc_img resized'>\
         <br>\
@@ -398,14 +383,6 @@ class Udemy:
         logging.info("Udemy links from CS tracking links:")
         collection = reversed(collection)
         self.multiThread(self.threads, collection, self.csq)
-        # threads = list()
-        # for e in reversed(linklist):
-        #     x = threading.Thread(target=self.csq, args=(e,))
-        #     threads.append(x)
-        #     x.start()
-
-        # for t in threads:
-        #     t.join()
 
     def csq(self, source: str):
         if source not in self.oldlinks:
@@ -529,14 +506,7 @@ class Udemy:
                     if DEBUG:
                         logging.info(e.text)
                     collection.append(e.text)
-            # if re.status_code == 200:
-            #     data = json.loads(re.text)
-            #     for d in data['data']['children']:
-            #         if 'selftext' in d['data']:
-            #             if d['data']['selftext'].startswith('https'):
-            #                     collection.append(d['data']['selftext'])
-            #                     if DEBUG:
-            #                         logging.info(d['data']['selftext'])
+
         except Exception as e:
             logging.error("FWC website has failed", e)
         logging.info(f"FWC Links found: {len(collection)}")
