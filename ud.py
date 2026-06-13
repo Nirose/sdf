@@ -42,8 +42,6 @@ try:
     HIDE = int(os.environ["HIDE"])
 except KeyError:
     INTERVAL = 3600
-    BOT = ""
-    CHATID = ""
     from secrets import *
 
 if DEBUG:
@@ -224,6 +222,21 @@ class Udemy:
 
     # SQL STUFF END
 
+    def sendTG(self, url: str, title: str, img: str):
+        data = {
+            "chat_id": CHATID,
+            "photo": img,
+            "caption": title,
+            "reply_markup": {
+                "inline_keyboard": [[{"text": "Enroll on Udemy", "url": url}]]
+            },
+        }
+        channel = f"https://api.telegram.org/bot{BOT}/sendPhoto"
+        try:
+            requests.post(channel, json=data)
+        except Exception as e:
+            print("Telegram Post Exception logged", e)
+
     # Add to DB without creating html or xml pages
     def addNew(self, url: str, source: str):
         # get course details for the current url
@@ -251,19 +264,7 @@ class Udemy:
             self.addtoDB(data)
 
             telink = f"https://trk.udemy.com/c/6563906/3301956/39854?u={quote(details['link'])}&subId1=telegram"
-            pdata = {
-                "chat_id": CHATID,
-                "photo": details["image"],
-                "caption": newtitle,
-                "reply_markup": {
-                    "inline_keyboard": [[{"text": "Enroll on Udemy", "url": telink}]]
-                },
-            }
-            channel = f"https://api.telegram.org/bot{BOT}/sendPhoto"
-            try:
-                requests.post(channel, json=pdata)
-            except Exception as e:
-                print("Telegram Post Exception logged", e)
+            self.sendTG(telink, newtitle, details["image"])
 
     def checkAdd(self, url: str, source: str):
         if self.unique(url):

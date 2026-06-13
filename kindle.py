@@ -35,12 +35,11 @@ try:
     BOB = os.environ["BOB"]
     CHATID = os.environ["CHATID"]
 except Exception:
-    from secrets import AMZKEY, AMZSECRET, BOB, DEBUG, DEPLOYED, PULL, THROTTLE
+    from secrets import AMZKEY, AMZSECRET, BOB, BOT, DEBUG, DEPLOYED, PULL, THROTTLE
     from secrets import (
         K_P as PASSWORD,
-    )
-    from secrets import (
         K_U as USER,
+        KCHAT as CHATID
     )
 
 if DEBUG:
@@ -372,7 +371,7 @@ class booktoForum:
 
     def removegetAdd(self):
         self.deleteOld()
-        amz = f"{PULL}https://www.amazon.com/amz-books/book-deals"
+        amz = "https://www.amazon.com/b/?node=13245867011"
         burl = "https://www.bookzio.com/latest-book-deals/"
         hurl = "https://www.hotukdeals.com/rss/tag/freebies"
         bburl = BOB
