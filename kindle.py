@@ -759,7 +759,7 @@ Rating:[color=maroon] {3} ({4} Reviews)[/color][/b]
                                 )
                                 driver.execute_script("arguments[0].click()", ele)
                             # driver.get('https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb')
-                            wait = random.randint(60, 120)
+                            wait = random.randint(30, 60)
                             print(f"Posted! Waiting {wait} seconds...")
                             time.sleep(wait)
                             # Add the ASIN to the db
