@@ -253,9 +253,11 @@ class booktoForum:
 
         links = 0
 
-        asins = re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(ar.content))
+        asins = set((a for a in re.findall(r"(?<=dp/)B[A-Z0-9]{9}(?=/?)", str(ar.content))))
 
         for asin in asins:
+            if DEBUG:
+                logging.info(f"AMZ: {url}, {asin}")
             self.newAsins.add(asin)
             links += 1
 
@@ -372,6 +374,10 @@ class booktoForum:
     def removegetAdd(self):
         self.deleteOld()
         amz = "https://www.amazon.com/b/?node=13245867011"
+        amz1 = "https://www.amazon.com/b/?node=6165851011"
+        amz2 = "https://www.amazon.com/b/?node=218646601011"
+        amz3 = "https://www.amazon.com/b/?node=23715160011"
+        amz4 = "https://www.amazon.com/b/?node=116557766011"
         burl = "https://www.bookzio.com/latest-book-deals/"
         hurl = "https://www.hotukdeals.com/rss/tag/freebies"
         bburl = BOB
@@ -381,7 +387,10 @@ class booktoForum:
             f1 = executor.submit(self.bookzio, burl)
             f2 = executor.submit(self.amazon, amz)
             f3 = executor.submit(self.getHUKD, hurl)
-            f4 = executor.submit(self.getbob, bburl)
+            f4 = executor.submit(self.amazon, amz1)
+            f5 = executor.submit(self.amazon, amz2)
+            f6 = executor.submit(self.amazon, amz3)
+            f7 = executor.submit(self.amazon, amz4)
 
         # print(self.oldAsins)
         # print(self.newAsins)
