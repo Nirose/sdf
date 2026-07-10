@@ -451,6 +451,7 @@ class booktoForum:
                         continue
 
                     if 'Books in this series' in driver.page_source:
+                        ogasin = asin
                         print("Collection is found")
                         tree = html.fromstring(driver.page_source)
                         links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
@@ -460,12 +461,8 @@ class booktoForum:
 
                         try:
                             self.addtoDB(
-                                asin=asin,
+                                asin=ogasin ,
                                 title='Collection',
-                                image='',
-                                desc='',
-                                price='',
-                                sale='',
                             )
                         except Exception:
                             logging.error(traceback.format_exc())
