@@ -457,6 +457,20 @@ class booktoForum:
                         for i in links:
                             asin = re.findall(r"B[0-9A-Z]{9,9}", i)[0]
                             listB.append(asin)
+
+                        try:
+                            self.addtoDB(
+                                asin=asin,
+                                title='Collection',
+                                image='',
+                                desc='',
+                                price='',
+                                sale='',
+                            )
+                        except Exception:
+                            logging.error(traceback.format_exc())
+                            print("Problem adding collection to db, ", link)
+
                     else:
                         try:
                             item = amazon.get_items(asin)[0]
