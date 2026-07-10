@@ -450,7 +450,7 @@ class booktoForum:
                     ):
                         continue
 
-                    if 'id="collection_description"' in driver.page_source:
+                    if 'Books in this series' in driver.page_source:
                         print("Collection is found")
                         tree = html.fromstring(driver.page_source)
                         links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
