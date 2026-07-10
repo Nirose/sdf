@@ -452,12 +452,12 @@ class booktoForum:
 
                     if 'Books in this series' in driver.page_source:
                         ogasin = asin
-                        print("Collection is found")
-                        tree = html.fromstring(driver.page_source)
-                        links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
-                        for i in links:
-                            asin = re.findall(r"B[0-9A-Z]{9,9}", i)[0]
-                            listB.append(asin)
+                        print("Collection is found, Skip")
+                        # tree = html.fromstring(driver.page_source)
+                        # links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
+                        # for i in links:
+                        #     asin = re.findall(r"B[0-9A-Z]{9,9}", i)[0]
+                        #     listB.append(asin)
 
                         try:
                             self.addtoDB(
