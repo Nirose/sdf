@@ -462,7 +462,7 @@ class booktoForum:
                         try:
                             self.addtoDB(
                                 asin=ogasin ,
-                                title='Collection',
+                                title='Collection',image='',desc='',price='',sale=''
                             )
                         except Exception:
                             logging.error(traceback.format_exc())
@@ -481,30 +481,10 @@ class booktoForum:
                         else:
                             try:
                                 price = (
-                                    driver.find_element(
-                                        by=By.CSS_SELECTOR,
-                                        value=".slot-price .ebook-price-value",
-                                    ).text
-                                    if (
-                                        driver.find_elements(
-                                            by=By.CSS_SELECTOR,
-                                            value=".slot-price .ebook-price-value",
-                                        )
-                                    )
-                                    else driver.find_element(
-                                        by=By.CSS_SELECTOR,
-                                        value=".kindleExtraMessage .a-color-price",
-                                    ).text
-                                    if (
-                                        driver.find_elements(
-                                            by=By.CSS_SELECTOR,
-                                            value=".kindleExtraMessage .a-color-price",
-                                        )
-                                    )
-                                    else driver.find_element(
+                                    driver.find_elements(
                                         by=By.CSS_SELECTOR,
                                         value=".centralizedApexPricePriceToPayMargin",
-                                    ).text
+                                    )[-1].text
                                     if (
                                         driver.find_elements(
                                             by=By.CSS_SELECTOR,
