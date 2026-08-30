@@ -444,15 +444,15 @@ class booktoForum:
                         with open(f"debug/{asin}.html", "w", encoding="utf-8") as f:
                             f.write(driver.page_source)
 
-                    if (
-                        "All titles below are free to borrow with a Kindle Unlimited subscription"
-                        in driver.page_source
-                    ):
-                        continue
-
-                    if 'Books in this series' in driver.page_source:
+                    if ' book series)' in driver.page_source:
                         ogasin = asin
-                        print("Collection is found, Skip")
+                        print("Collection, Skipping")
+                        logging.info(f"{asin} is a series")
+
+                        # code to extract books in the series
+                        # disabled because some series can be too big
+                        # figure out a way to post series later
+                        #
                         # tree = html.fromstring(driver.page_source)
                         # links = tree.xpath('//a[contains(@id,"itemBookTitle_")]/@href')
                         # for i in links:
@@ -468,6 +468,11 @@ class booktoForum:
                             logging.error(traceback.format_exc())
                             print("Problem adding collection to db, ", link)
 
+                    if (
+                        "All titles below are free to borrow with a Kindle Unlimited subscription"
+                        in driver.page_source
+                    ):
+                        continue
                     else:
                         try:
                             item = amazon.get_items(asin)[0]
