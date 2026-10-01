@@ -439,7 +439,7 @@ class Udemy:
 
     def iv(self):
         logging.info("Crawling IH")
-        re = self.scraper.get(f"{UD_IH}/fetchdata?filter=latest")
+        re = self.scraper.get(f"{PULL}{UD_IH}/fetchdata?filter=latest")
         # logging.info(re.text)
         collection = []
         tree = html.fromstring(bytes(re.text, encoding="utf-8"))
