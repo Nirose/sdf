@@ -588,10 +588,10 @@ if __name__ == "__main__":
             ud.fc()
         except Exception as e:
             logging.error("FWC website has failed", e)
-        # try:
-        #     ud.fg()
-        # except Exception as e:
-        #     logging.error("FG website has failed", e)
+        try:
+            ud.fg()
+        except Exception as e:
+            logging.error("FG website has failed", e)
     else:
         try:
             ud.fc()
