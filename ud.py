@@ -468,23 +468,15 @@ class Udemy:
             if not DEPLOYED:
                 logging.info(e.text)
         logging.info(f"{len(collection)} links found in FG")
-        threads = list()
-        for item in reversed(collection):
-            x = threading.Thread(target=self.fgq, args=(item,))
-            threads.append(x)
-            x.start()
-        for x in threads:
-            x.join()
-        # for item in tree:
-        #     if self.verifyUdemy(item):
-        #         print(item)
+
+        self.multiThread(self.threads, collection, self.fgq)
 
     def fgq(self, source: str):
         if source not in self.oldlinks:
             re = self.scraper.get(source)
             try:
                 tree = html.fromstring(re.text).xpath(
-                    '//div/a[contains(@href,"couponCode")]/@href'
+                    '//a[contains(@href,"couponCode")]/@href'
                 )
             except Exception:
                 print("Failed:", re.url)
@@ -504,9 +496,10 @@ class Udemy:
             if re.status_code == 200:
                 tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
                 for e in tree.xpath('//item/link'):
+                    link = e.text.replace('course','redirect')
                     if DEBUG:
-                        logging.info(e.text)
-                    collection.append(e.text)
+                        logging.info(link)
+                    collection.append(link)
 
         except Exception as e:
             logging.error("FWC website has failed", e)
@@ -551,7 +544,7 @@ class Udemy:
         if source not in self.oldlinks:
             #print(f'Source: {source}')
             try:
-                re = requests.get(source)
+                re = self.scraper.get(source)
                 # print(re.url)
                 self.checkAdd(re.url, source)
             except Exception:
@@ -594,9 +587,9 @@ if __name__ == "__main__":
             logging.error("FG website has failed", e)
     else:
         try:
-            ud.fc()
+            ud.fg()
         except Exception as e:
-            logging.error("FWC website has failed", e)
+            logging.error("FG website has failed", e)
 
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
