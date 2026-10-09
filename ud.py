@@ -369,8 +369,8 @@ class Udemy:
 
     def cs(self, page: int):
         collection = []
-        logging.info("Crawling CS...")
-        logging.info(f"Using Proxy: {USE_PRXY}")
+        print("Crawling CS...")
+        # logging.info(f"Using Proxy: {USE_PRXY}")
         for p in range(1, page + 1):
             curl = UD_CS + "/page/" + str(p) + "/"
             re = (
@@ -421,7 +421,7 @@ class Udemy:
             logging.info("CS link already checked, skipping")
 
     def du(self, page: int):
-        logging.info("Crawling DU")
+        print("Crawling DU")
         collection = []
         for p in range(1, page):
             re = self.scraper.get(f"{UD_DU}/all/{str(p)}")
@@ -448,7 +448,7 @@ class Udemy:
             logging.info("DU link already checked, skipping")
 
     def iv(self):
-        logging.info("Crawling IH")
+        print("Crawling IH")
         re = self.scraper.get(f"{PULL}{UD_IH}/fetchdata?filter=latest")
         # logging.info(re.text)
         collection = []
@@ -469,7 +469,7 @@ class Udemy:
             logging.info("IV link already checked, skipping")
 
     def fg(self):
-        logging.info("Crawling FG...")
+        print("Crawling FG...")
         re = self.scraper.get(PULL+UD_FG)
         # with open('tests/source.html', 'w') as file:
         #     file.write(re.text)
@@ -500,7 +500,7 @@ class Udemy:
             logging.info("FG link already checked, skipping")
 
     def fc(self):
-        logging.info("Crawling FWC")
+        print("Crawling FWC")
         re = self.scraper.get(UD_FC)
         #logging.info(re.text)
         collection = []
@@ -538,7 +538,7 @@ class Udemy:
             logging.info("FWC link already checked, skipping")
 
     def ic(self):
-        logging.info("Crawling IDC")
+        print("Crawling IDC")
         re = self.scraper.get(PULL+UD_IC)
         #logging.info(re.text)
         collection = []
