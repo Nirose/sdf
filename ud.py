@@ -77,7 +77,7 @@ class Udemy:
         print(DEPLOYED, BOT, CHATID)
         self.session = requests.Session()
         adapter = HTTPAdapter(
-            pool_connections=10,
+            pool_connections=15,
             pool_maxsize=self.threads * 2,
             max_retries=Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504]),
         )
@@ -134,32 +134,28 @@ class Udemy:
 
     def getID(self):
         cids = set()
-        conn = self.pool.getconn()
-        try:
-            with conn.cursor() as cur:
-                cur.execute("SELECT cid from udemy")
-                for row in cur.fetchall():
-                    try:
-                        cids.add(row[0])
-                    except (ValueError, TypeError):
-                        continue
-        finally:
-            self.pool.putconn(conn)
+        with self.pool.connection() as conn:
+            with conn.transaction():
+                with conn.cursor() as cur:
+                    cur.execute("SELECT cid from udemy")
+                    for row in cur.fetchall():
+                        try:
+                            cids.add(row[0])
+                        except (ValueError, TypeError):
+                            continue
         return cids
 
     def getLinks(self):
         links = set()
-        conn = self.pool.getconn()
-        try:
-            with conn.cursor() as cur:
-                cur.execute("SELECT source FROM udemy")
-                for row in cur.fetchall():
-                    try:
-                        links.add(row[0])
-                    except (ValueError, TypeError):
-                        continue
-        finally:
-            self.pool.putconn(conn)
+        with self.pool.connection() as conn:
+            with conn.transaction():
+                with conn.cursor() as cur:
+                    cur.execute("SELECT source FROM udemy")
+                    for row in cur.fetchall():
+                        try:
+                            links.add(row[0])
+                        except (ValueError, TypeError):
+                            continue
         return links
 
     # SQL STUFF END
@@ -205,7 +201,7 @@ class Udemy:
             coupon = parse_qs(urlparse(url).query)["couponCode"][0]
         except KeyError:
             coupon = ""
-        data = json.loads(self.scraper.get(uurl).text)
+        data = json.loads(self.session.get(uurl).text)
         link = "https://www.udemy.com/course/" + cname + "/?couponCode=" + coupon
         desc = self.cleanDesc(
             data["title"], data["description"], data["image_480x270"], link
@@ -232,9 +228,9 @@ class Udemy:
         # logging.info(uurl)
         try:
             response = (
-                self.scraper.get(uurl, proxies=self.proxy).text
+                self.session.get(uurl, proxies=self.proxy).text
                 if USE_PRXY
-                else self.scraper.get(uurl).text
+                else self.session.get(uurl).text
             )
             # if DEBUG:
             #     logging.info(f"First Response: {response}")
@@ -249,9 +245,9 @@ class Udemy:
                 )
                 logging.info(uuurl)  # check for the coupons validity
                 response = (
-                    self.scraper.get(uuurl, proxies=self.proxy).text
+                    self.session.get(uuurl, proxies=self.proxy).text
                     if USE_PRXY
-                    else self.scraper.get(uuurl).text
+                    else self.session.get(uuurl).text
                 )
                 # if DEBUG:
                 #     logging.info(f"Second Response: {response}")
@@ -282,7 +278,7 @@ class Udemy:
         }
         channel = f"https://api.telegram.org/bot{BOT}/sendPhoto"
         try:
-            requests.post(channel, json=data)
+            self.session.post(channel, json=data)
         except Exception as e:
             print("Telegram Post Exception logged", e)
 
@@ -616,7 +612,7 @@ if __name__ == "__main__":
             + "&text="
         )
         msg = f"{len(ud.newcourses)} courses found in {round((end - start) / 60, 2)} minutes"
-        ud.scraper.get(tg + msg)
+        self.session.get(tg + msg)
     # if DEPLOYED == 1:
     #     print(f'waiting for: {str(round(INTERVAL/60,2))} minutes')
     #     time.sleep(INTERVAL)
