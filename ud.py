@@ -109,28 +109,24 @@ class Udemy:
     # endpoint to send SQL
     def sendSQL(self, sql: str, val=None):
         try:
-            # send = self.pool.getconn()
-            with self.pool.getconn() as send, send.cursor() as cur:
-                try:
-                    if val:
-                        cur.execute(
-                            query.SQL(sql).format(query.Identifier("udemy")), val
-                        )
-                    else:
-                        cur.execute(sql)
-                        send.commit()
-                except psycopg.errors.UniqueViolation:
-                    print("Duplicate Error!")
-                    raise UniqueViolation
-                except psycopg.DatabaseError as e:
-                    print(sql)
-                    logging.error(traceback.format_exc())
-                    print("Could not execute command", e.pgcode)
-                    raise Exception
-                finally:
-                    cur.close()
-        finally:
-            self.pool.putconn(send)
+            with self.pool.connection() as conn:
+                with conn.transaction(): #auto close connection
+                    with conn.cursor() as cur:
+                        if val:
+                            cur.execute(
+                                query.SQL(sql).format(query.Identifier("udemy")), val
+                            )
+                        else:
+                            cur.execute(sql)
+        except psycopg.errors.UniqueViolation:
+            print("Duplicate Error!")
+            raise UniqueViolation
+        except psycopg.DatabaseError as e:
+            logging.info(f"Database error with: {sql}")
+            logging.error(traceback.format_exc())
+            print("Could not execute command", e.pgcode)
+            raise Exception
+
 
     def closeSQL(self):
         if self.pool is not None:
