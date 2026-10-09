@@ -13,6 +13,8 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 import cloudscraper
 import psycopg
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 from lxml import etree, html
 from psycopg import sql as query
 
@@ -59,6 +61,7 @@ class UniqueViolation(Exception):
 
 class Udemy:
     def __init__(self):
+        self.threads = THREADS
         self.rss_head, self.rss_foot, self.html_head, self.html_foot = tuple(
             "" for _ in range(4)
         )
@@ -72,14 +75,20 @@ class Udemy:
         self.oldlinks = self.getLinks()
         self.tags = set()
         print(DEPLOYED, BOT, CHATID)
-        session = cloudscraper.create_scraper()
+        self.session = requests.Session()
+        adapter = HTTPAdapter(
+            pool_connections=10,
+            pool_maxsize=self.threads * 2,
+            max_retries=Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504]),
+        )
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
         self.scraper = cloudscraper.create_scraper(
             browser={"browser": "firefox", "platform": "windows", "mobile": False},
             interpreter="nodejs",
-            sess=session,
+            sess=self.session,
         )
         self.proxy = {"http": PRXY, "https": PRXY}
-        self.threads = THREADS
 
     #
     # SQL STUFF
@@ -161,6 +170,8 @@ class Udemy:
             cur.close()
         return links
 
+    # SQL STUFF END
+
     def deleteOld(self):
         # delete the ASINS older than 3 days
         delsql = "delete from udemy where pdate < NOW()-INTERVAL'3 days'"
@@ -188,7 +199,7 @@ class Udemy:
             {des}\
 <br><br>\
 <a href='#' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/enroll-udemy.png' alt='Link to enroll in {alt}' class='bbc_img resized linker'></a><a href='https://www.jucktion.com/forum/udemy-coupon/?utm_source=forum&amp;utm_campaign=more-udemy-coupons' class='bbc_link' target='_blank' rel='noopener noreferrer nofollow'><img loading='lazy' src='https://www.jucktion.com/forum/uploads/more-udemy-coupons.png' alt='Check more free udemy coupons' class='bbc_img resized'></a>\
-<br><script>let linko='{rand.choice([UD_AF, UD_FA])}{quote(link)}&subId1=forum';</script>\
+<br><script>let linko='{UD_AF}{quote(link)}&subId1=forum';</script>\
 <br><br><br><sub>Please note: As an affiliate partner with Udemy, this post includes affiliate links. Purchasing any course through these links may earn me a commission, but please buy only if it aligns with your needs. Thanks for your support!</sub>"
 
         return cdesc
@@ -220,7 +231,55 @@ class Udemy:
             "coupon": str(coupon),
         }
 
-    # SQL STUFF END
+    def verifyUdemy(self, url):
+        uurl = (
+            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
+        )
+        try:
+            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
+        except KeyError:
+            coupon = ""
+        # logging.info(uurl)
+        try:
+            response = (
+                self.scraper.get(uurl, proxies=self.proxy).text
+                if USE_PRXY
+                else self.scraper.get(uurl).text
+            )
+            # if DEBUG:
+            #     logging.info(f"First Response: {response}")
+            data = json.loads(response)
+            if "detail" not in data.keys():
+                uuurl = (
+                    "https://www.udemy.com/api-2.0/course-landing-components/"
+                    + str(data["id"])
+                    + "/me/?couponCode="
+                    + str(coupon)
+                    + "&components=buy_button"
+                )
+                logging.info(uuurl)  # check for the coupons validity
+                response = (
+                    self.scraper.get(uuurl, proxies=self.proxy).text
+                    if USE_PRXY
+                    else self.scraper.get(uuurl).text
+                )
+                # if DEBUG:
+                #     logging.info(f"Second Response: {response}")
+                try:
+                    data = json.loads(response)
+                    # logging.info(data) #JSON DATA
+                    return data["buy_button"]["button"]["is_free_with_discount"]
+                except Exception as e:
+                    logging.error(
+                        f"Response is not formatted: {response}, Exception: {e}"
+                    )
+                    return False
+
+            else:
+                logging.info(data)
+                return False
+        except Exception as e:
+            logging.error(f"Exception occured while trying to verify {e}")
 
     def sendTG(self, url: str, title: str, img: str):
         data = {
@@ -293,56 +352,6 @@ class Udemy:
         except Exception:
             return False
 
-    def verifyUdemy(self, url):
-        uurl = (
-            "https://www.udemy.com/api-2.0/courses/" + urlparse(url).path.split("/")[2]
-        )
-        try:
-            coupon = parse_qs(urlparse(url).query)["couponCode"][0]
-        except KeyError:
-            coupon = ""
-        # logging.info(uurl)
-        try:
-            response = (
-                self.scraper.get(uurl, proxies=self.proxy).text
-                if USE_PRXY
-                else self.scraper.get(uurl).text
-            )
-            # if DEBUG:
-            #     logging.info(f"First Response: {response}")
-            data = json.loads(response)
-            if "detail" not in data.keys():
-                uuurl = (
-                    "https://www.udemy.com/api-2.0/course-landing-components/"
-                    + str(data["id"])
-                    + "/me/?couponCode="
-                    + str(coupon)
-                    + "&components=buy_button"
-                )
-                logging.info(uuurl)  # check for the coupons validity
-                response = (
-                    self.scraper.get(uuurl, proxies=self.proxy).text
-                    if USE_PRXY
-                    else self.scraper.get(uuurl).text
-                )
-                # if DEBUG:
-                #     logging.info(f"Second Response: {response}")
-                try:
-                    data = json.loads(response)
-                    # logging.info(data) #JSON DATA
-                    return data["buy_button"]["button"]["is_free_with_discount"]
-                except Exception as e:
-                    logging.error(
-                        f"Response is not formatted: {response}, Exception: {e}"
-                    )
-                    return False
-
-            else:
-                logging.info(data)
-                return False
-        except Exception as e:
-            logging.error(f"Exception occured while trying to verify {e}")
-
     def manageID(self):
         # self.deleteOld()
         self.cs(2)
@@ -352,8 +361,9 @@ class Udemy:
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
             futures = {executor.submit(function, url): url for url in collection}
             for future in concurrent.futures.as_completed(futures):
+                url = futures[future]
                 try:
-                    url = futures[future]
+                    future.result()
                 except Exception as exc:
                     print("%r generated an exception: %s" % (url, exc))
 
@@ -406,7 +416,7 @@ class Udemy:
                     print("Failed: ", query)
                     logging.error(traceback.format_exc(), e)
             except IndexError:
-                logging.info(f"IndexError Failure:{re.url}")
+                logging.info(f"IndexError Failure:{source}")
         else:
             logging.info("CS link already checked, skipping")
 
@@ -460,7 +470,9 @@ class Udemy:
 
     def fg(self):
         logging.info("Crawling FG...")
-        re = self.scraper.get(UD_FG)
+        re = self.scraper.get(PULL+UD_FG)
+        # with open('tests/source.html', 'w') as file:
+        #     file.write(re.text)
         collection = []
         tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
         for e in tree.xpath("//item/link"):
@@ -473,7 +485,7 @@ class Udemy:
 
     def fgq(self, source: str):
         if source not in self.oldlinks:
-            re = self.scraper.get(source)
+            re = self.scraper.get(PULL+source)
             try:
                 tree = html.fromstring(re.text).xpath(
                     '//a[contains(@href,"couponCode")]/@href'
@@ -527,7 +539,7 @@ class Udemy:
 
     def ic(self):
         logging.info("Crawling IDC")
-        re = self.scraper.get(f"{PULL}{UD_IC}")
+        re = self.scraper.get(PULL+UD_IC)
         #logging.info(re.text)
         collection = []
         tree = etree.fromstring(bytes(re.text, encoding="utf-8"))
@@ -545,7 +557,7 @@ class Udemy:
             #print(f'Source: {source}')
             try:
                 re = self.scraper.get(source)
-                link = unquote(re.url.split("u=",1)[1])
+                link = re.url if "trk.udemy.com" not in re.url else unquote(re.url.split("u=",1)[1])
                 #print(link)
                 self.checkAdd(link, source)
             except Exception:
@@ -588,7 +600,7 @@ if __name__ == "__main__":
             logging.error("FG website has failed", e)
     else:
         try:
-            ud.ic()
+            ud.fg()
         except Exception as e:
             logging.error("ICQ website has failed", e)
 
