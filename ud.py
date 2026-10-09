@@ -69,7 +69,7 @@ class Udemy:
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.84 Safari/537.36 Vivaldi/3.3.2022.39"
         }
-        self.conn = dbc.connect_pool()
+        self.pool = dbc.connect_pool()
         self.foundcourses, self.newcourses, self.rsscourses = set(), set(), set()
         self.oldcourses = self.getID()
         self.oldlinks = self.getLinks()
@@ -109,8 +109,8 @@ class Udemy:
     # endpoint to send SQL
     def sendSQL(self, sql: str, val=None):
         try:
-            # send = self.conn.getconn()
-            with self.conn.getconn() as send, send.cursor() as cur:
+            # send = self.pool.getconn()
+            with self.pool.getconn() as send, send.cursor() as cur:
                 try:
                     if val:
                         cur.execute(
@@ -130,44 +130,40 @@ class Udemy:
                 finally:
                     cur.close()
         finally:
-            self.conn.putconn(send)
+            self.pool.putconn(send)
 
     def closeSQL(self):
-        if self.conn is not None:
-            self.conn.close()
+        if self.pool is not None:
+            self.pool.close()
 
     def getID(self):
-        asin = set()
+        cids = set()
+        conn = self.pool.getconn()
         try:
-            # dbc.cur.execute('SELECT id,price from iapps')
-            sql = "SELECT cid from udemy"
-            send = dbc.connect()
-            cur = send.cursor()
-            cur.execute(sql)
-            for data in cur.fetchall():
-                asin.add(data[0])
-        except Exception:
-            print("Failed to get data!")
+            with conn.cursor() as cur:
+                cur.execute("SELECT cid from udemy")
+                for row in cur.fetchall():
+                    try:
+                        cids.add(row[0])
+                    except (ValueError, TypeError):
+                        continue
         finally:
-            send.close()
-            cur.close()
-        return asin
+            self.pool.putconn(conn)
+        return cids
 
     def getLinks(self):
         links = set()
+        conn = self.pool.getconn()
         try:
-            # dbc.cur.execute('SELECT id,price from iapps')
-            sql = "SELECT source from udemy"
-            send = dbc.connect()
-            cur = send.cursor()
-            cur.execute(sql)
-            for data in cur.fetchall():
-                links.add(data[0])
-        except Exception:
-            print("Failed to get data!")
+            with conn.cursor() as cur:
+                cur.execute("SELECT source FROM udemy")
+                for row in cur.fetchall():
+                    try:
+                        links.add(row[0])
+                    except (ValueError, TypeError):
+                        continue
         finally:
-            send.close()
-            cur.close()
+            self.pool.putconn(conn)
         return links
 
     # SQL STUFF END
@@ -189,9 +185,7 @@ class Udemy:
             print("Could not update the older records", e)
 
     def cleanDesc(self, title: str, des: str, img: str, link: str):
-        import re
-
-        alt = re.sub(r"\[.*?\]", "", title)
+        alt = regex.sub(r"\[.*?\]", "", title)
         alt = alt.strip()
 
         cdesc = f"<img loading='lazy' src='{img}' alt='{alt}' class='bbc_img resized'>\
@@ -577,7 +571,7 @@ if __name__ == "__main__":
     # print(ud.oldcourses)
     # print(ud.rsscourses)
 
-    if DEPLOYED:
+    if not DEPLOYED:
         try:
             ud.du(5)
         except Exception as e:
