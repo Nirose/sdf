@@ -8,7 +8,7 @@ import threading
 import time
 import traceback
 from datetime import datetime
-from urllib.parse import parse_qs, quote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import cloudscraper
 import psycopg
@@ -479,7 +479,7 @@ class Udemy:
                     '//a[contains(@href,"couponCode")]/@href'
                 )
             except Exception:
-                print("Failed:", re.url)
+                print("Failed(FGQ):", re.url)
                 logging.error(traceback.format_exc())
             if tree:
                 url = tree[0]
@@ -515,7 +515,7 @@ class Udemy:
                     '//div/a[contains(@href,"couponCode")]/@href'
                 )
             except Exception:
-                print("Failed:", re.url)
+                print("Failed(FCQ):", re.url)
                 logging.error(traceback.format_exc())
             if tree:
                 url = tree[0]
@@ -545,10 +545,11 @@ class Udemy:
             #print(f'Source: {source}')
             try:
                 re = self.scraper.get(source)
-                # print(re.url)
-                self.checkAdd(re.url, source)
+                link = unquote(re.url.split("u=",1)[1])
+                #print(link)
+                self.checkAdd(link, source)
             except Exception:
-                print("Failed:", re.url)
+                print("Failed(ICQ):", re.url)
                 logging.error(traceback.format_exc())
         else:
             logging.info("IDC link already checked, skipping")
@@ -587,9 +588,9 @@ if __name__ == "__main__":
             logging.error("FG website has failed", e)
     else:
         try:
-            ud.fg()
+            ud.ic()
         except Exception as e:
-            logging.error("FG website has failed", e)
+            logging.error("ICQ website has failed", e)
 
     # print(ud.foundcourses)
     ud.newcourses = ud.foundcourses.difference(ud.oldcourses)
