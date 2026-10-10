@@ -77,7 +77,7 @@ class Udemy:
         print(DEPLOYED, BOT, CHATID)
         self.session = requests.Session()
         adapter = HTTPAdapter(
-            pool_connections=15,
+            pool_connections=self.threads,
             pool_maxsize=self.threads * 2,
             max_retries=Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504]),
         )
@@ -612,7 +612,7 @@ if __name__ == "__main__":
             + "&text="
         )
         msg = f"{len(ud.newcourses)} courses found in {round((end - start) / 60, 2)} minutes"
-        self.session.get(tg + msg)
+        ud.session.get(tg + msg)
     # if DEPLOYED == 1:
     #     print(f'waiting for: {str(round(INTERVAL/60,2))} minutes')
     #     time.sleep(INTERVAL)
